@@ -203,6 +203,8 @@
     .status-bar { height: 18px; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-size: 9px; }
     .status-left, .status-right { display: flex; gap: 10px; }
 
+    .help-item { padding: 2px 0; font-size: 10px; color: var(--text2); }
+    .help-item b { color: var(--text); }
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -263,19 +265,7 @@
         <div class="left-tab" onclick="switchLeftTab(this,'ecs')">ECS</div>
       </div>
       <div class="left-panel active" id="p-files">
-        <ul class="file-tree">
-          <li class="active"><span class="icon">📄</span> main.zpx</li>
-          <li><span class="icon">📄</span> project.json</li>
-          <li><span class="icon">📁</span> assets/</li>
-          <li class="indent"><span class="icon">🖼</span> grass.png</li>
-          <li class="indent"><span class="icon">🖼</span> player.png</li>
-          <li class="indent"><span class="icon">🔊</span> jump.wav</li>
-          <li><span class="icon">📁</span> scenes/</li>
-          <li class="indent"><span class="icon">📄</span> level1.zpx</li>
-          <li><span class="icon">📁</span> scripts/</li>
-          <li class="indent"><span class="icon">📄</span> player.zpx</li>
-          <li class="indent"><span class="icon">📄</span> enemy.zpx</li>
-        </ul>
+        <ul class="file-tree" id="file-tree-list"></ul>
       </div>
       <div class="left-panel" id="p-hierarchy">
         <div id="hierarchy-tree"></div>
@@ -306,7 +296,7 @@
     <!-- Center -->
     <div class="center">
       <div class="toolbar glass">
-        <button class="btn run" onclick="runGame()">▶ Run</button>
+        <button class="btn run" id="run-btn" onclick="runGame()">▶ Run</button>
         <button class="btn stop" onclick="stopGame()">■ Stop</button>
         <div class="sep"></div>
         <div class="gizmo-btns">
@@ -314,6 +304,7 @@
           <div class="gz" onclick="setGizmo('rotate',this)" title="Rotate (E)">E</div>
           <div class="gz" onclick="setGizmo('scale',this)" title="Scale (R)">R</div>
         </div>
+        <span id="hr-status" style="font-size:9px;color:var(--text3);margin-left:auto">HR:OFF</span>
         <div class="sep"></div>
         <div class="cam-btns">
           <div class="cam active" onclick="setCam('persp',this)">Persp</div>
@@ -376,37 +367,44 @@
         </div>
         <div class="viewport-panel" id="vp-code">
           <div class="editor-area">
-            <div class="editor-tabs"><div class="editor-tab active">main.zpx</div></div>
+            <div class="editor-tabs" id="editor-tabs"><div class="editor-tab active">main.zpx</div></div>
             <div class="editor-content">
-              <textarea id="code-editor" spellcheck="false">import "zap.zpx"
+              <textarea id="code-editor" spellcheck="false">import "lib/ecs.zpx"
 
-zap("My Game", 1280, 720)
+world = ECS.World()
 
-player = zap_cube(0, 0, 0)
-zap_color(player, 0.2, 0.6, 1.0)
-zap_physics(player, "dynamic")
-zap_add_script(player, "player.zpx")
+player = ECS.create_entity(world, "player")
+ground = ECS.create_entity(world, "ground")
 
-ground = zap_plane(0, -1, 0)
-zap_scale_to(ground, 20, 1, 20)
-zap_color(ground, 0.3, 0.7, 0.3)
-zap_physics(ground, "static")
+comp Transform:
+  x: 0
+  y: 0
+  z: 0
+end
 
-light = zap_light(5, 10, 5)
-zap_light_color(light, 1, 1, 0.9)
-zap_light_intensity(light, 1.5)
+comp Velocity:
+  x: 0
+  y: 0
+  z: 0
+end
 
-zap_on_update(fn(dt):
-  if zap_key("w"): zap_move(player, 0, 0, -5 * dt)
-  if zap_key("s"): zap_move(player, 0, 0, 5 * dt)
-  if zap_key("a"): zap_move(player, -5 * dt, 0, 0)
-  if zap_key("d"): zap_move(player, 5 * dt, 0, 0)
-  if zap_key("space"): zap_move(player, 0, 8 * dt, 0)
-  let pos = zap_pos(player)
-  zap_camera(pos[0], pos[1] + 5, pos[2] + 10)
-end)
+fn movement_sys(world, dt):
+  for e in ECS.query(world, ["Transform", "Velocity"]):
+    let t = ECS.get_component(world, e, "Transform")
+    let v = ECS.get_component(world, e, "Velocity")
+    t.fields["x"] += v.fields["x"] * dt
+end
 
-zap_run()
+ECS.add_component(world, player, "Transform", Transform())
+ECS.add_component(world, player, "Velocity", Velocity())
+
+ECS.register_system(world, "Movement", ["Transform", "Velocity"], movement_sys)
+
+fn main_loop():
+  ECS.run_systems(world, 0.016)
+end
+
+print("Ready with", ECS.entity_count(world), "entities")
 </textarea>
             </div>
           </div>
@@ -429,6 +427,7 @@ zap_run()
       <div class="right-tabs">
         <div class="right-tab active" onclick="switchRightTab(this,'inspector')">Inspector</div>
         <div class="right-tab" onclick="switchRightTab(this,'project')">Project</div>
+        <div class="right-tab" onclick="switchRightTab(this,'help')">Help</div>
       </div>
       <div class="right-panel-content" id="rp-inspector">
         <div id="inspector-content"></div>
@@ -440,6 +439,57 @@ zap_run()
           <div class="ai-input-row">
             <input id="ai-input" placeholder="Ask AI..." onkeydown="if(event.key==='Enter')aiChat()">
             <button onclick="aiChat()">Send</button>
+          </div>
+        </div>
+      </div>
+      <div class="right-panel-content" id="rp-help" style="display:none">
+        <div class="insp" style="padding:6px;font-size:10px;line-height:1.5;color:var(--text2)">
+          <div class="insp-h open" onclick="togSec(this)"><span>ZPX Quick Reference</span><span class="arr">▶</span></div>
+          <div class="insp-b">
+            <div class="help-item"><b>fn</b> name(params): ... end</div>
+            <div class="help-item"><b>let</b> x = value</div>
+            <div class="help-item"><b>if</b> cond: ... el: ... end</div>
+            <div class="help-item"><b>for</b> x in iter: ... end</div>
+            <div class="help-item"><b>while</b> cond: ... end</div>
+            <div class="help-item"><b>ret</b> value</div>
+            <div class="help-item"><b>and</b> / <b>or</b> / <b>not</b> (not && || !)</div>
+            <div class="help-item"><b>none</b> (not null)</div>
+          </div>
+          <div class="insp-h" onclick="togSec(this)"><span>ECS Keywords</span><span class="arr">▶</span></div>
+          <div class="insp-b closed">
+            <div class="help-item"><b>entity</b> Name: ... end</div>
+            <div class="help-item"><b>comp</b> Name: fields ... end</div>
+            <div class="help-item"><b>system</b> Name(comps): ... end</div>
+            <div class="help-item"><b>scene</b> Name: ... end</div>
+          </div>
+          <div class="insp-h" onclick="togSec(this)"><span>ECS Runtime</span><span class="arr">▶</span></div>
+          <div class="insp-b closed">
+            <div class="help-item"><b>ECS.World()</b> create world</div>
+            <div class="help-item"><b>ECS.create_entity(w, name)</b></div>
+            <div class="help-item"><b>ECS.add_component(w, e, type, data)</b></div>
+            <div class="help-item"><b>ECS.get_component(w, e, type)</b></div>
+            <div class="help-item"><b>ECS.has_component(w, e, type)</b></div>
+            <div class="help-item"><b>ECS.query(w, [types])</b></div>
+            <div class="help-item"><b>ECS.register_system(w, name, types, fn)</b></div>
+            <div class="help-item"><b>ECS.run_systems(w, dt)</b></div>
+          </div>
+          <div class="insp-h" onclick="togSec(this)"><span>Math Builtins</span><span class="arr">▶</span></div>
+          <div class="insp-b closed">
+            <div class="help-item"><b>vec3(x, y, z)</b></div>
+            <div class="help-item"><b>vec3_add/sub/dot/cross/length/normalize</b></div>
+            <div class="help-item"><b>quat(x, y, z, w)</b></div>
+            <div class="help-item"><b>quat_from_euler/mul/conjugate/normalize/slerp</b></div>
+            <div class="help-item"><b>mat4()</b> identity matrix</div>
+            <div class="help-item"><b>mat4_translate/scale/rotate/perspective/look_at</b></div>
+          </div>
+          <div class="insp-h" onclick="togSec(this)"><span>Keyboard Shortcuts</span><span class="arr">▶</span></div>
+          <div class="insp-b closed" style="font-size:9px">
+            <div class="help-item"><b>Ctrl+Shift+P</b> Command Palette</div>
+            <div class="help-item"><b>Ctrl+P</b> Quick Search</div>
+            <div class="help-item"><b>Ctrl+Enter</b> Focus AI Chat</div>
+            <div class="help-item"><b>F5</b> Run Game</div>
+            <div class="help-item"><b>Ctrl+H</b> Toggle Hot Reload</div>
+            <div class="help-item"><b>W/E/R</b> Gizmo mode</div>
           </div>
         </div>
       </div>
@@ -539,11 +589,120 @@ zap_run()
 
   <script>
     const { ipcRenderer } = require('electron');
+    const path = require('path');
     const out = document.getElementById('output-panel');
     const editor = document.getElementById('code-editor');
+    let currentProject = '';
+    let currentFilePath = null;
+    let openTabs = [];
 
     function log(msg) { const d = document.createElement('div'); d.textContent = msg; out.appendChild(d); out.scrollTop = out.scrollHeight; }
     function setTheme(t) { document.documentElement.setAttribute('data-theme', t); }
+
+    // === File Tree ===
+    async function listFiles() {
+      const files = await ipcRenderer.invoke('list-files');
+      const list = document.getElementById('file-tree-list');
+      list.innerHTML = '';
+      const fileIcons = { '.zpx': '📄', '.json': '📄', '.png': '🖼', '.jpg': '🖼', '.wav': '🔊', '.mp3': '🎵', '.glsl': '✏️', '.hdr': '🖼', '.anim': '🎬' };
+      files.forEach(f => {
+        const isZpx = f.name.endsWith('.zpx');
+        const ext = f.name.substring(f.name.lastIndexOf('.'));
+        const icon = f.isDir ? '📁' : (fileIcons[ext] || '📄');
+        const depth = f.name.split('/').length - 1;
+        const indent = depth > 0 ? 'indent' : '';
+        const li = document.createElement('li');
+        li.className = (f.isDir ? '' : 'file-item') + (indent ? ' ' + indent : '');
+        li.innerHTML = `<span class="icon">${icon}</span>${f.isDir ? f.name + '/' : f.name}`;
+        if (!f.isDir && isZpx) {
+          li.onclick = () => openFile(f.name);
+          li.style.cursor = 'pointer';
+        }
+        list.appendChild(li);
+      });
+      if (files.length === 0) list.innerHTML = '<li style="color:var(--text3);font-size:10px">Empty project</li>';
+    }
+
+    // === Editor Tabs ===
+    async function openFile(filePath) {
+      currentFilePath = filePath;
+      if (!openTabs.includes(filePath)) {
+        openTabs.push(filePath);
+      }
+      renderTabs();
+      const content = await ipcRenderer.invoke('load-file', path.join(currentProject || '', filePath));
+      if (content !== null) {
+        editor.value = content;
+        document.querySelector('.status-left').innerHTML = '<span>' + filePath + '</span><span>ZPX</span>';
+      }
+    }
+
+    function renderTabs() {
+      const container = document.getElementById('editor-tabs');
+      if (!container) return;
+      container.innerHTML = '';
+      openTabs.forEach(t => {
+        const tab = document.createElement('div');
+        tab.className = 'editor-tab' + (t === currentFilePath ? ' active' : '');
+        tab.textContent = t.split('/').pop();
+        tab.onclick = () => openFile(t);
+        const close = document.createElement('span');
+        close.textContent = '×';
+        close.style.marginLeft = '4px';
+        close.style.cursor = 'pointer';
+        close.onclick = (e) => { e.stopPropagation(); closeTab(t); };
+        tab.appendChild(close);
+        container.appendChild(tab);
+      });
+      if (openTabs.length === 0 && container) {
+        container.innerHTML = '<div class="editor-tab active">main.zpx</div>';
+      }
+    }
+
+    function closeTab(filePath) {
+      const idx = openTabs.indexOf(filePath);
+      if (idx >= 0) {
+        openTabs.splice(idx, 1);
+        if (currentFilePath === filePath) {
+          currentFilePath = openTabs.length > 0 ? openTabs[openTabs.length - 1] : null;
+          if (currentFilePath) {
+            openFile(currentFilePath);
+          } else {
+            editor.value = '';
+          }
+        }
+        renderTabs();
+      }
+    }
+
+    async function saveCurrentFile() {
+      if (currentFilePath) {
+        const result = await ipcRenderer.invoke('save-file-content', currentFilePath, editor.value);
+        if (result.success) log('Saved ' + currentFilePath);
+        else log('Save error: ' + result.error);
+      }
+    }
+
+    // === Hot Reload ===
+    let hotReloadOn = false;
+    ipcRenderer.on('hot-reload-toggled', (e, state) => {
+      hotReloadOn = state;
+      document.getElementById('hr-status').textContent = state ? 'HR:ON' : 'HR:OFF';
+      log('Hot reload: ' + (state ? 'ON' : 'OFF'));
+    });
+    ipcRenderer.on('file-changed', (e, filename) => {
+      log('File changed: ' + filename);
+      if (currentFilePath && filename === currentFilePath) {
+        ipcRenderer.invoke('load-file', path.join(currentProject || '', filename)).then(c => {
+          if (c !== null) editor.value = c;
+        });
+      }
+    });
+
+    // === Quick File Open ===
+    function openQuickFileList(files) {
+      // Populate command palette with files
+    }
 
     // === Command Palette ===
     const commands = [
@@ -810,6 +969,7 @@ zap_run()
     document.addEventListener('keydown', function(e) {
       if (e.ctrlKey && e.shiftKey && e.key === 'P') { e.preventDefault(); openCmdPalette(); }
       else if (e.ctrlKey && e.key === 'p') { e.preventDefault(); openQuickSearch(); }
+      else if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveCurrentFile(); }
       else if (e.ctrlKey && e.key === 'Enter' && document.activeElement !== document.getElementById('ai-input')) { document.getElementById('ai-input').focus(); e.preventDefault(); }
       else if (e.key === 'F5') { e.preventDefault(); runGame(); }
       else if (e.key === 'Escape' && (document.getElementById('cmd-palette').classList.contains('show') || document.getElementById('quick-search').classList.contains('show'))) { closeOverlay(); }
@@ -855,8 +1015,18 @@ zap_run()
     function toggleGrid() { gridOn = !gridOn; document.getElementById('grid-btn').classList.toggle('active', gridOn); drawViewport(); }
     function toggleShadows() { shadowOn = !shadowOn; document.getElementById('shadow-btn').classList.toggle('active', shadowOn); }
 
-    function runGame() { log('Running...'); ipcRenderer.invoke('run-game'); }
-    function stopGame() { ipcRenderer.invoke('stop-game'); log('Stopped'); }
+    function runGame() {
+      log('Running...');
+      document.querySelector('.status-left').innerHTML = '<span>Running...</span><span>ZPX</span>';
+      document.getElementById('run-btn').classList.add('active');
+      ipcRenderer.invoke('run-game');
+    }
+    function stopGame() {
+      ipcRenderer.invoke('stop-game');
+      log('Stopped');
+      document.querySelector('.status-left').innerHTML = '<span>Ready</span><span>ZPX</span>';
+      document.getElementById('run-btn').classList.remove('active');
+    }
     function exportGame() { ipcRenderer.invoke('export-game', 'windows'); }
     function aiGenerate() { const p = document.getElementById('ai-input').value || 'A simple game'; log('Generating: ' + p); ipcRenderer.invoke('ai-generate', p).then(c => { editor.value = c; log('Generated!'); }); }
     function addComponent() { log('Add component'); }
@@ -1167,7 +1337,13 @@ zap_run()
 
     ipcRenderer.on('game-output', (e,d) => log(d));
     ipcRenderer.on('game-error', (e,d) => log('ERROR: '+d));
-    ipcRenderer.on('project-opened', (e,p) => { document.getElementById('project-name').textContent = p; log('Project: '+p); scanProject(); });
+    ipcRenderer.on('project-opened', (e,p) => {
+      currentProject = p;
+      document.getElementById('project-name').textContent = p.split(/[\\/]/).pop();
+      log('Project: '+p);
+      listFiles();
+      scanProject();
+    });
 
     log('ZPX Studio ready');
   </script>

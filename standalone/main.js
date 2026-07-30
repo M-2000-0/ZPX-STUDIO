@@ -22,6 +22,9 @@ const EVAL_SCRIPT = findZPX();
 let mainWindow;
 let gameProcess;
 let currentProject = null;
+let hotReloadEnabled = false;
+let fileWatcher = null;
+let openFiles = {};
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -170,7 +173,7 @@ ipcMain.handle('scan-project', async (event) => {
   try {
     const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
     const result = await new Promise((resolve, reject) => {
-      const child = spawn(pythonCmd, [EVAL_SCRIPT, '--scan', currentProject]);
+      const child = spawn(pythonCmd, [EVAL_SCRIPT, 'scan', currentProject]);
       let out = '';
       child.stdout.on('data', d => out += d.toString());
       child.on('close', () => {
@@ -206,6 +209,54 @@ ipcMain.handle('run-zpx', async (event, code) => {
     return { error: e.message };
   }
 });
+
+ipcMain.handle('list-files', async () => {
+  if (!currentProject) return [];
+  try {
+    const result = [];
+    function walk(dir, rel) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const e of entries) {
+        const full = path.join(dir, e.name);
+        const r = rel ? rel + '/' + e.name : e.name;
+        if (e.isDirectory()) {
+          if (!e.name.startsWith('.') && e.name !== 'node_modules') {
+            result.push({ name: r, isDir: true });
+            walk(full, r);
+          }
+        } else {
+          result.push({ name: r, isDir: false });
+        }
+      }
+    }
+    walk(currentProject, '');
+    return result;
+  } catch (e) {
+    return [];
+  }
+});
+
+ipcMain.handle('save-file-content', async (event, filePath, content) => {
+  try {
+    const fullPath = path.isAbsolute(filePath) ? filePath : path.join(currentProject, filePath);
+    fs.writeFileSync(fullPath, content, 'utf8');
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('toggle-hot-reload', async () => {
+  hotReloadEnabled = !hotReloadEnabled;
+  if (hotReloadEnabled && currentProject) {
+    startWatching();
+  } else if (!hotReloadEnabled) {
+    stopWatching();
+  }
+  return hotReloadEnabled;
+});
+
+ipcMain.handle('get-hot-reload-state', async () => hotReloadEnabled);
 
 // Game functions
 function runGame() {
@@ -261,6 +312,41 @@ function debugGame() {
   runGame();
 }
 
+function startWatching() {
+  stopWatching();
+  if (!currentProject) return;
+  try {
+    fileWatcher = fs.watch(currentProject, { recursive: true }, (eventType, filename) => {
+      if (filename && filename.endsWith('.zpx')) {
+        mainWindow.webContents.send('file-changed', filename);
+        if (hotReloadEnabled && gameProcess) {
+          runGame();
+        }
+      }
+    });
+  } catch (e) {
+    // Fallback: watch main.zpx only
+    try {
+      const mainFile = path.join(currentProject, 'main.zpx');
+      if (fs.existsSync(mainFile)) {
+        fileWatcher = fs.watch(mainFile, () => {
+          mainWindow.webContents.send('file-changed', 'main.zpx');
+          if (hotReloadEnabled && gameProcess) {
+            runGame();
+          }
+        });
+      }
+    } catch (e2) {}
+  }
+}
+
+function stopWatching() {
+  if (fileWatcher) {
+    fileWatcher.close();
+    fileWatcher = null;
+  }
+}
+
 async function newProject() {
   const result = await dialog.showSaveDialog(mainWindow, {
     title: 'Create New Project',
@@ -273,22 +359,69 @@ async function newProject() {
   const projectPath = result.filePath;
   fs.mkdirSync(projectPath, { recursive: true });
   fs.mkdirSync(path.join(projectPath, 'assets'), { recursive: true });
-  fs.mkdirSync(path.join(projectPath, 'scenes'), { recursive: true });
+  fs.mkdirSync(path.join(projectPath, 'scripts'), { recursive: true });
 
   const mainContent = `import "lib/ecs.zpx"
 
 world = ECS.World()
 
 player = ECS.create_entity(world, "player")
-enemy = ECS.create_entity(world, "enemy")
+ground = ECS.create_entity(world, "ground")
 
-print("ECS world ready with", ECS.entity_count(world), "entities")
+comp Transform:
+  x: 0
+  y: 0
+  z: 0
+end
 
-fn update(dt):
-  for e in ECS.list_entities(world):
-    print("Entity:", ECS.get_name(e))
+comp Velocity:
+  x: 0
+  y: 0
+  z: 0
+end
 
-ECS.run_systems(world, 0.016)
+comp Render:
+  mesh: "cube"
+  color: [1, 1, 1]
+end
+
+fn movement_sys(world, dt):
+  for e in ECS.query(world, ["Transform", "Velocity"]):
+    let t = ECS.get_component(world, e, "Transform")
+    let v = ECS.get_component(world, e, "Velocity")
+    t.fields["x"] += v.fields["x"] * dt
+    t.fields["y"] += v.fields["y"] * dt
+    t.fields["z"] += v.fields["z"] * dt
+end
+
+fn player_control(dt):
+  let v = ECS.get_component(world, player, "Velocity")
+  v.fields["x"] = 0
+  v.fields["z"] = 0
+  if key("d"): v.fields["x"] = 5
+  if key("a"): v.fields["x"] = -5
+  if key("w"): v.fields["z"] = -5
+  if key("s"): v.fields["z"] = 5
+end
+
+ECS.add_component(world, player, "Transform", Transform())
+ECS.add_component(world, player, "Velocity", Velocity())
+ECS.add_component(world, player, "Render", Render())
+
+ECS.add_component(world, ground, "Transform", Transform())
+ECS.add_component(world, ground, "Render", Render())
+
+let gr = ECS.get_component(world, ground, "Render")
+gr.fields["color"] = [0.3, 0.7, 0.3]
+
+ECS.register_system(world, "PlayerControl", ["Velocity"], player_control)
+ECS.register_system(world, "Movement", ["Transform", "Velocity"], movement_sys)
+
+fn main_loop():
+  ECS.run_systems(world, 0.016)
+end
+
+print("ECS game ready with", ECS.entity_count(world), "entities")
 `;
 
   fs.writeFileSync(path.join(projectPath, 'main.zpx'), mainContent);
@@ -299,6 +432,7 @@ ECS.run_systems(world, 0.016)
   }, null, 2));
 
   currentProject = projectPath;
+  if (hotReloadEnabled) startWatching();
   mainWindow.webContents.send('project-opened', projectPath);
   return projectPath;
 }
@@ -312,6 +446,7 @@ async function openProject() {
   if (result.canceled) return null;
 
   currentProject = result.filePaths[0];
+  if (hotReloadEnabled) startWatching();
   mainWindow.webContents.send('project-opened', currentProject);
   return currentProject;
 }
@@ -645,7 +780,13 @@ function openREPL() {
 }
 
 function toggleHotReload() {
-  mainWindow.webContents.send('toggle-hot-reload');
+  hotReloadEnabled = !hotReloadEnabled;
+  if (hotReloadEnabled && currentProject) {
+    startWatching();
+  } else if (!hotReloadEnabled) {
+    stopWatching();
+  }
+  mainWindow.webContents.send('hot-reload-toggled', hotReloadEnabled);
 }
 
 function showAbout() {
