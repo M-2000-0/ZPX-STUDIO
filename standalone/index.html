@@ -18,6 +18,7 @@
       --glass: rgba(255,255,255,0.03);
       --glass-border: rgba(255,255,255,0.08);
       --glass-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      --radius: 6px;
     }
 
     [data-theme="white"] {
@@ -55,7 +56,6 @@
       transition: all 0.3s ease;
     }
 
-    /* Liquid Glass Effect */
     .glass {
       background: var(--glass);
       backdrop-filter: blur(20px);
@@ -74,19 +74,10 @@
       color: var(--text2);
       border-bottom: 1px solid var(--border);
     }
-
-    .titlebar-center {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
+    .titlebar-center { display: flex; gap: 8px; align-items: center; }
     .theme-btn {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      cursor: pointer;
+      width: 12px; height: 12px; border-radius: 50%;
+      border: 1px solid var(--border); cursor: pointer;
       transition: transform 0.2s;
     }
     .theme-btn:hover { transform: scale(1.2); }
@@ -96,71 +87,90 @@
 
     .main { display: flex; height: calc(100vh - 28px); }
 
-    .sidebar {
-      width: 200px;
+    /* Left sidebar: files + hierarchy */
+    .left-sidebar {
+      width: 240px;
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
     }
-    .sidebar-header {
-      padding: 8px 10px;
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text2);
+    .left-tabs {
+      display: flex;
       border-bottom: 1px solid var(--border);
     }
-    .sidebar-content { flex: 1; overflow-y: auto; padding: 8px; }
+    .left-tab {
+      flex: 1; padding: 6px; text-align: center;
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--text2);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .left-tab:hover { color: var(--text); }
+    .left-tab.active { color: var(--text); border-bottom: 2px solid var(--accent); }
+    .left-panel { display: none; flex: 1; overflow-y: auto; padding: 6px; }
+    .left-panel.active { display: block; }
+
     .file-tree { list-style: none; }
     .file-tree li {
-      padding: 5px 8px;
-      cursor: pointer;
-      border-radius: 4px;
-      margin-bottom: 2px;
-      font-size: 12px;
-      color: var(--text2);
+      padding: 4px 8px; cursor: pointer;
+      border-radius: 4px; margin-bottom: 1px;
+      font-size: 12px; color: var(--text2);
       transition: all 0.15s;
     }
     .file-tree li:hover { background: var(--glass); color: var(--text); }
     .file-tree li.active { background: var(--accent); color: var(--bg); }
+    .file-tree .folder { color: var(--text2); }
+    .file-tree .indent { padding-left: 20px; }
+
+    .hierarchy-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 8px; cursor: pointer;
+      border-radius: 4px; margin-bottom: 1px;
+      font-size: 12px; color: var(--text2);
+      transition: all 0.15s;
+    }
+    .hierarchy-item:hover { background: var(--glass); color: var(--text); }
+    .hierarchy-item.selected { background: var(--accent); color: var(--bg); }
+    .hierarchy-item .icon { width: 14px; text-align: center; font-size: 10px; }
+    .hierarchy-item .toggle { width: 12px; font-size: 8px; color: var(--text2); cursor: pointer; }
+    .hierarchy-item.child { padding-left: 28px; }
 
     .center { flex: 1; display: flex; flex-direction: column; }
 
     .toolbar {
-      display: flex;
-      gap: 4px;
-      padding: 6px 10px;
+      display: flex; gap: 4px; padding: 5px 8px;
       border-bottom: 1px solid var(--border);
       align-items: center;
     }
     .btn {
-      background: var(--glass);
-      backdrop-filter: blur(10px);
+      background: var(--glass); backdrop-filter: blur(10px);
       border: 1px solid var(--glass-border);
-      padding: 5px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      color: var(--text);
-      font-size: 11px;
+      padding: 4px 10px; border-radius: var(--radius);
+      cursor: pointer; color: var(--text); font-size: 11px;
       transition: all 0.15s;
     }
     .btn:hover { background: var(--surface2); transform: translateY(-1px); }
+    .btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
     .btn.run { background: var(--accent); color: var(--bg); border-color: var(--accent); }
-    .btn.run:hover { opacity: 0.9; }
     .btn.stop { background: var(--text); color: var(--bg); }
-    .btn.ai { background: var(--glass); border: 1px solid var(--accent); }
+    .btn.ai { border: 1px solid var(--accent); }
     .sep { width: 1px; height: 18px; background: var(--border); }
+    .gizmo-btns { display: flex; gap: 2px; }
+    .gizmo-btn {
+      width: 24px; height: 24px; display: flex;
+      align-items: center; justify-content: center;
+      border-radius: 4px; font-size: 10px; font-weight: 600;
+      background: var(--glass); border: 1px solid var(--glass-border);
+      cursor: pointer; color: var(--text2); transition: all 0.15s;
+    }
+    .gizmo-btn:hover { color: var(--text); background: var(--surface2); }
+    .gizmo-btn.active { background: var(--accent); color: var(--bg); }
 
     .viewport-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border);
+      display: flex; border-bottom: 1px solid var(--border);
     }
     .viewport-tab {
-      padding: 6px 14px;
-      cursor: pointer;
-      font-size: 11px;
-      color: var(--text2);
-      border-right: 1px solid var(--border);
+      padding: 5px 12px; cursor: pointer; font-size: 11px;
+      color: var(--text2); border-right: 1px solid var(--border);
       transition: all 0.15s;
     }
     .viewport-tab:hover { color: var(--text); background: var(--glass); }
@@ -173,230 +183,180 @@
     .viewport-3d { flex: 1; background: var(--surface); position: relative; }
     #viewport-canvas { width: 100%; height: 100%; display: block; }
     .viewport-label {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 10px;
-      color: var(--text2);
-      background: var(--glass);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
+      position: absolute; top: 8px; left: 8px;
+      padding: 3px 8px; border-radius: 4px; font-size: 10px;
+      color: var(--text2); background: var(--glass);
+      backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
     }
-    .gizmo {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      width: 60px;
-      height: 60px;
-      border-radius: 8px;
-      background: var(--glass);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
+    .viewport-overlay {
+      position: absolute; bottom: 10px; left: 10px;
+      display: flex; gap: 6px;
+    }
+    .viewport-badge {
+      padding: 3px 8px; border-radius: 4px; font-size: 9px;
+      background: var(--glass); backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border); color: var(--text2);
     }
 
     .node-editor { flex: 1; background: var(--surface); }
     #node-canvas { width: 100%; height: 100%; }
 
     .asset-panel { flex: 1; display: flex; flex-direction: column; }
-    .asset-toolbar {
-      display: flex;
-      gap: 4px;
-      padding: 6px;
-      border-bottom: 1px solid var(--border);
-    }
+    .asset-toolbar { display: flex; gap: 4px; padding: 6px; border-bottom: 1px solid var(--border); }
     .asset-grid {
-      flex: 1;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 8px;
-      padding: 8px;
-      overflow-y: auto;
+      flex: 1; display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+      gap: 6px; padding: 8px; overflow-y: auto;
     }
     .asset-item {
-      aspect-ratio: 1;
-      background: var(--glass);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+      aspect-ratio: 1; background: var(--glass);
+      backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
+      border-radius: 8px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; cursor: pointer;
       transition: all 0.2s;
     }
     .asset-item:hover { transform: translateY(-2px); box-shadow: var(--glass-shadow); border-color: var(--accent); }
     .asset-item.selected { border-color: var(--accent); background: var(--surface2); }
-    .asset-item .icon { font-size: 22px; margin-bottom: 4px; }
-    .asset-item .name { font-size: 9px; color: var(--text2); text-align: center; }
+    .asset-item .icon { font-size: 20px; margin-bottom: 3px; }
+    .asset-item .name { font-size: 9px; color: var(--text2); text-align: center; word-break: break-all; }
 
     .timeline-panel { flex: 1; display: flex; flex-direction: column; }
     .timeline-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 10px; border-bottom: 1px solid var(--border);
     }
-    .timeline-controls { display: flex; gap: 4px; }
+    .timeline-controls { display: flex; gap: 3px; }
     .timeline-track { flex: 1; background: var(--surface); overflow-x: auto; }
     #timeline-canvas { height: 100%; }
 
     .editor-area { flex: 1; display: flex; flex-direction: column; }
     .editor-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-      height: 30px;
+      display: flex; border-bottom: 1px solid var(--border); height: 28px;
     }
     .editor-tab {
-      padding: 6px 12px;
-      cursor: pointer;
-      font-size: 11px;
-      color: var(--text2);
-      border-right: 1px solid var(--border);
+      padding: 5px 12px; cursor: pointer; font-size: 11px;
+      color: var(--text2); border-right: 1px solid var(--border);
     }
     .editor-tab:hover { color: var(--text); }
     .editor-tab.active { color: var(--text); border-bottom: 2px solid var(--accent); }
-
     .editor-content { flex: 1; }
     #code-editor {
-      width: 100%;
-      height: 100%;
-      background: var(--surface);
-      color: var(--text);
-      border: none;
-      padding: 12px;
+      width: 100%; height: 100%; background: var(--surface);
+      color: var(--text); border: none; padding: 10px;
       font-family: 'Cascadia Code', 'Fira Code', monospace;
-      font-size: 13px;
-      line-height: 1.6;
-      resize: none;
-      outline: none;
-      tab-size: 2;
+      font-size: 13px; line-height: 1.6; resize: none;
+      outline: none; tab-size: 2;
     }
 
+    /* Right panel: Inspector */
     .right-panel {
-      width: 260px;
-      border-left: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
+      width: 280px; border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
     }
     .right-panel-header {
-      padding: 6px 10px;
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text2);
-      border-bottom: 1px solid var(--border);
+      padding: 6px 10px; font-size: 9px;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--text2); border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
     }
     .right-panel-content { flex: 1; padding: 8px; overflow-y: auto; }
 
-    .prop-group {
-      background: var(--glass);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 8px;
+    .inspector-section {
+      background: var(--glass); backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border); border-radius: var(--radius);
+      margin-bottom: 8px; overflow: hidden;
     }
-    .prop-group h4 { font-size: 10px; color: var(--text2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .inspector-header {
+      padding: 6px 10px; font-size: 10px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--text2); cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      transition: background 0.15s;
+    }
+    .inspector-header:hover { background: var(--surface2); }
+    .inspector-header .arrow { font-size: 8px; transition: transform 0.2s; }
+    .inspector-header.open .arrow { transform: rotate(90deg); }
+    .inspector-body { padding: 8px 10px; }
+    .inspector-body.collapsed { display: none; }
+
     .prop-row { display: flex; align-items: center; margin-bottom: 4px; gap: 6px; }
-    .prop-label { font-size: 11px; color: var(--text2); width: 20px; }
+    .prop-label { font-size: 11px; color: var(--text2); width: 50px; flex-shrink: 0; }
     .prop-input {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 4px 6px;
-      color: var(--text);
-      font-size: 11px;
-      transition: border-color 0.15s;
+      flex: 1; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 3px 6px; color: var(--text);
+      font-size: 11px; transition: border-color 0.15s;
     }
     .prop-input:focus { border-color: var(--accent); outline: none; }
+    .prop-input-sm { width: 60px; }
+
+    .prop-checkbox {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--text2); margin-bottom: 4px;
+      cursor: pointer;
+    }
+    .prop-checkbox input { accent-color: var(--accent); }
+
+    .prop-select {
+      flex: 1; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 3px 6px; color: var(--text);
+      font-size: 11px;
+    }
+
+    .add-component-btn {
+      width: 100%; padding: 6px; background: var(--glass);
+      border: 1px dashed var(--glass-border); border-radius: var(--radius);
+      color: var(--text2); font-size: 11px; cursor: pointer;
+      transition: all 0.15s; margin-top: 4px;
+    }
+    .add-component-btn:hover { border-color: var(--accent); color: var(--text); }
 
     .ai-box {
-      background: var(--glass);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      border-radius: 8px;
-      padding: 12px;
-      margin-top: 8px;
+      background: var(--glass); backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border); border-radius: var(--radius);
+      padding: 10px; margin-top: 8px;
     }
-    .ai-box h4 { font-size: 10px; margin-bottom: 8px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+    .ai-box h4 { font-size: 10px; margin-bottom: 6px; color: var(--text2); text-transform: uppercase; }
     .ai-textarea {
-      width: 100%;
-      height: 60px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px;
-      color: var(--text);
-      font-size: 11px;
-      resize: none;
-      margin-bottom: 8px;
-      transition: border-color 0.15s;
+      width: 100%; height: 50px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 6px; color: var(--text); font-size: 11px;
+      resize: none; margin-bottom: 6px;
     }
     .ai-textarea:focus { border-color: var(--accent); outline: none; }
     .ai-btn {
-      width: 100%;
-      background: var(--accent);
-      color: var(--bg);
-      border: none;
-      padding: 8px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: 600;
-      transition: all 0.15s;
+      width: 100%; background: var(--accent); color: var(--bg);
+      border: none; padding: 6px; border-radius: 4px;
+      cursor: pointer; font-size: 11px; font-weight: 600;
     }
-    .ai-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .ai-btn:hover { opacity: 0.9; }
 
     .bottom-panel {
-      height: 160px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
+      height: 150px; border-top: 1px solid var(--border);
+      display: flex; flex-direction: column;
     }
-    .panel-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-    }
+    .panel-tabs { display: flex; border-bottom: 1px solid var(--border); }
     .panel-tab {
-      padding: 5px 12px;
-      cursor: pointer;
-      font-size: 10px;
+      padding: 4px 12px; cursor: pointer; font-size: 10px;
       color: var(--text2);
     }
     .panel-tab:hover { color: var(--text); }
     .panel-tab.active { color: var(--text); border-bottom: 2px solid var(--accent); }
     .panel-content {
-      flex: 1;
-      padding: 8px 10px;
-      overflow-y: auto;
-      font-family: 'Cascadia Code', monospace;
-      font-size: 11px;
+      flex: 1; padding: 6px 10px; overflow-y: auto;
+      font-family: 'Cascadia Code', monospace; font-size: 11px;
     }
 
     .status-bar {
-      height: 20px;
-      background: var(--accent);
-      color: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 10px;
-      font-size: 10px;
+      height: 20px; background: var(--accent); color: var(--bg);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 10px; font-size: 10px;
     }
     .status-left, .status-right { display: flex; gap: 12px; }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--text2); }
-
-    /* Selection */
     ::selection { background: var(--accent); color: var(--bg); }
   </style>
 </head>
@@ -404,35 +364,97 @@
   <div class="titlebar glass">
     <span>ZPX Studio</span>
     <div class="titlebar-center">
-      <div class="theme-btn black" onclick="setTheme('black')" title="Black"></div>
-      <div class="theme-btn white" onclick="setTheme('white')" title="White"></div>
-      <div class="theme-btn glass" onclick="setTheme('glass')" title="Liquid Glass"></div>
+      <div class="theme-btn black" onclick="setTheme('black')"></div>
+      <div class="theme-btn white" onclick="setTheme('white')"></div>
+      <div class="theme-btn glass" onclick="setTheme('glass')"></div>
     </div>
     <span id="project-name">No Project</span>
   </div>
 
   <div class="main">
-    <div class="sidebar glass">
-      <div class="sidebar-header">Explorer</div>
-      <div class="sidebar-content">
-        <ul class="file-tree" id="file-tree">
+    <!-- Left: Files + Hierarchy -->
+    <div class="left-sidebar glass">
+      <div class="left-tabs">
+        <div class="left-tab active" onclick="switchLeftTab('files')">Files</div>
+        <div class="left-tab" onclick="switchLeftTab('hierarchy')">Hierarchy</div>
+      </div>
+      <div class="left-panel active" id="panel-files">
+        <ul class="file-tree">
           <li class="active">main.zpx</li>
           <li>project.json</li>
-          <li>assets/</li>
-          <li>scenes/</li>
+          <li class="folder">assets/</li>
+          <li class="folder indent">grass.png</li>
+          <li class="folder indent">player.png</li>
+          <li class="folder">scenes/</li>
+          <li class="folder indent">level1.zpx</li>
         </ul>
+      </div>
+      <div class="left-panel" id="panel-hierarchy">
+        <div class="hierarchy-item selected">
+          <span class="toggle">▶</span>
+          <span class="icon">📦</span>
+          <span>Player</span>
+        </div>
+        <div class="hierarchy-item child">
+          <span class="icon">🔊</span>
+          <span>AudioSource</span>
+        </div>
+        <div class="hierarchy-item child">
+          <span class="icon">✏️</span>
+          <span>Movement.zpx</span>
+        </div>
+        <div class="hierarchy-item">
+          <span class="toggle">▶</span>
+          <span class="icon">📦</span>
+          <span>Ground</span>
+        </div>
+        <div class="hierarchy-item">
+          <span class="toggle">▶</span>
+          <span class="icon">📦</span>
+          <span>Enemies</span>
+        </div>
+        <div class="hierarchy-item child">
+          <span class="icon">📦</span>
+          <span>Enemy_01</span>
+        </div>
+        <div class="hierarchy-item child">
+          <span class="icon">📦</span>
+          <span>Enemy_02</span>
+        </div>
+        <div class="hierarchy-item child">
+          <span class="icon">📦</span>
+          <span>Enemy_03</span>
+        </div>
+        <div class="hierarchy-item">
+          <span class="icon">💡</span>
+          <span>DirectionalLight</span>
+        </div>
+        <div class="hierarchy-item">
+          <span class="icon">📷</span>
+          <span>MainCamera</span>
+        </div>
       </div>
     </div>
 
+    <!-- Center -->
     <div class="center">
       <div class="toolbar glass">
         <button class="btn run" onclick="runGame()">Run</button>
         <button class="btn stop" onclick="stopGame()">Stop</button>
         <div class="sep"></div>
-        <button class="btn ai" onclick="aiGenerate()">AI Generate</button>
-        <button class="btn" onclick="formatCode()">Format</button>
-        <button class="btn" onclick="checkSyntax()">Check</button>
+        <div class="gizmo-btns">
+          <div class="gizmo-btn active" onclick="setGizmo('translate')" title="Translate (W)">W</div>
+          <div class="gizmo-btn" onclick="setGizmo('rotate')" title="Rotate (E)">E</div>
+          <div class="gizmo-btn" onclick="setGizmo('scale')" title="Scale (R)">R</div>
+        </div>
         <div class="sep"></div>
+        <button class="btn" onclick="toggleSnap()" id="snap-btn">Snap</button>
+        <input type="number" class="prop-input prop-input-sm" value="1" id="snap-value" style="width:40px">
+        <div class="sep"></div>
+        <button class="btn" onclick="toggleWireframe()">Wire</button>
+        <button class="btn" onclick="toggleGrid()">Grid</button>
+        <div class="sep"></div>
+        <button class="btn ai" onclick="aiGenerate()">AI Generate</button>
         <button class="btn" onclick="exportGame()">Export</button>
       </div>
 
@@ -449,14 +471,16 @@
           <div class="viewport-3d">
             <canvas id="viewport-canvas"></canvas>
             <div class="viewport-label">Perspective</div>
-            <div class="gizmo"></div>
+            <div class="viewport-overlay">
+              <div class="viewport-badge" id="gizmo-badge">Translate</div>
+              <div class="viewport-badge">Perspective</div>
+              <div class="viewport-badge" id="snap-badge">Snap: Off</div>
+            </div>
           </div>
         </div>
 
         <div class="viewport-panel" id="panel-nodes">
-          <div class="node-editor">
-            <canvas id="node-canvas"></canvas>
-          </div>
+          <div class="node-editor"><canvas id="node-canvas"></canvas></div>
         </div>
 
         <div class="viewport-panel" id="panel-assets">
@@ -473,24 +497,20 @@
           <div class="timeline-panel">
             <div class="timeline-header">
               <div class="timeline-controls">
-                <button class="btn" onclick="tlPrev()">Prev</button>
-                <button class="btn run" onclick="tlPlay()">Play</button>
-                <button class="btn stop" onclick="tlStop()">Stop</button>
-                <button class="btn" onclick="tlNext()">Next</button>
+                <button class="btn" onclick="tlPrev()">◀</button>
+                <button class="btn run" onclick="tlPlay()">▶</button>
+                <button class="btn stop" onclick="tlStop()">■</button>
+                <button class="btn" onclick="tlNext()">▶</button>
               </div>
               <span style="font-size:11px" id="tl-frame">Frame: 0</span>
             </div>
-            <div class="timeline-track">
-              <canvas id="timeline-canvas"></canvas>
-            </div>
+            <div class="timeline-track"><canvas id="timeline-canvas"></canvas></div>
           </div>
         </div>
 
         <div class="viewport-panel" id="panel-code">
           <div class="editor-area">
-            <div class="editor-tabs">
-              <div class="editor-tab active">main.zpx</div>
-            </div>
+            <div class="editor-tabs"><div class="editor-tab active">main.zpx</div></div>
             <div class="editor-content">
               <textarea id="code-editor" spellcheck="false">import "zap.zpx"
 
@@ -498,10 +518,12 @@ zap("My Game", 1280, 720)
 
 player = zap_cube(0, 0, 0)
 zap_color(player, 0.2, 0.6, 1.0)
+zap_physics(player, "dynamic")
 
 ground = zap_plane(0, -1, 0)
 zap_scale_to(ground, 20, 1, 20)
 zap_color(ground, 0.3, 0.7, 0.3)
+zap_physics(ground, "static")
 
 zap_on_update(fn(dt):
   if zap_key("w"): zap_move(player, 0, 0, -5 * dt)
@@ -529,27 +551,90 @@ zap_run()
       </div>
     </div>
 
+    <!-- Right: Inspector -->
     <div class="right-panel glass">
-      <div class="right-panel-header">Properties</div>
+      <div class="right-panel-header">Inspector</div>
       <div class="right-panel-content">
-        <div class="prop-group">
-          <h4>Position</h4>
-          <div class="prop-row"><span class="prop-label">X</span><input class="prop-input" type="number" value="0"></div>
-          <div class="prop-row"><span class="prop-label">Y</span><input class="prop-input" type="number" value="0"></div>
-          <div class="prop-row"><span class="prop-label">Z</span><input class="prop-input" type="number" value="0"></div>
+        <!-- Transform -->
+        <div class="inspector-section">
+          <div class="inspector-header open" onclick="toggleSection(this)">
+            <span>Transform</span><span class="arrow">▶</span>
+          </div>
+          <div class="inspector-body">
+            <div class="prop-row"><span class="prop-label">Pos</span><input class="prop-input" type="number" value="0" step="0.1"><input class="prop-input" type="number" value="0" step="0.1"><input class="prop-input" type="number" value="0" step="0.1"></div>
+            <div class="prop-row"><span class="prop-label">Rot</span><input class="prop-input" type="number" value="0" step="1"><input class="prop-input" type="number" value="0" step="1"><input class="prop-input" type="number" value="0" step="1"></div>
+            <div class="prop-row"><span class="prop-label">Scl</span><input class="prop-input" type="number" value="1" step="0.1"><input class="prop-input" type="number" value="1" step="0.1"><input class="prop-input" type="number" value="1" step="0.1"></div>
+          </div>
         </div>
-        <div class="prop-group">
-          <h4>Scale</h4>
-          <div class="prop-row"><span class="prop-label">X</span><input class="prop-input" type="number" value="1"></div>
-          <div class="prop-row"><span class="prop-label">Y</span><input class="prop-input" type="number" value="1"></div>
-          <div class="prop-row"><span class="prop-label">Z</span><input class="prop-input" type="number" value="1"></div>
+
+        <!-- Mesh Renderer -->
+        <div class="inspector-section">
+          <div class="inspector-header open" onclick="toggleSection(this)">
+            <span>Mesh Renderer</span><span class="arrow">▶</span>
+          </div>
+          <div class="inspector-body">
+            <div class="prop-row"><span class="prop-label">Mesh</span><select class="prop-select"><option>Cube</option><option>Sphere</option><option>Plane</option><option>Cylinder</option><option>Capsule</option></select></div>
+            <div class="prop-row"><span class="prop-label">Color</span><input class="prop-input" type="color" value="#3399ff" style="padding:0;height:22px;width:40px"><input class="prop-input" type="text" value="#3399FF"></div>
+            <div class="prop-row"><span class="prop-label">Visible</span><label class="prop-checkbox"><input type="checkbox" checked> Enabled</label></div>
+          </div>
         </div>
-        <div class="prop-group">
-          <h4>Color</h4>
-          <div class="prop-row"><span class="prop-label">R</span><input class="prop-input" type="number" min="0" max="1" step="0.1" value="0.2"></div>
-          <div class="prop-row"><span class="prop-label">G</span><input class="prop-input" type="number" min="0" max="1" step="0.1" value="0.6"></div>
-          <div class="prop-row"><span class="prop-label">B</span><input class="prop-input" type="number" min="0" max="1" step="0.1" value="1.0"></div>
+
+        <!-- Material -->
+        <div class="inspector-section">
+          <div class="inspector-header" onclick="toggleSection(this)">
+            <span>Material</span><span class="arrow">▶</span>
+          </div>
+          <div class="inspector-body collapsed">
+            <div class="prop-row"><span class="prop-label">Shader</span><select class="prop-select"><option>Standard</option><option>Unlit</option><option>Transparent</option><option>Emissive</option></select></div>
+            <div class="prop-row"><span class="prop-label">Metallic</span><input class="prop-input" type="range" min="0" max="1" step="0.05" value="0.5"></div>
+            <div class="prop-row"><span class="prop-label">Rough</span><input class="prop-input" type="range" min="0" max="1" step="0.05" value="0.5"></div>
+            <div class="prop-row"><span class="prop-label">Tex</span><input class="prop-input" type="text" placeholder="None" readonly></div>
+          </div>
         </div>
+
+        <!-- Physics -->
+        <div class="inspector-section">
+          <div class="inspector-header" onclick="toggleSection(this)">
+            <span>Physics</span><span class="arrow">▶</span>
+          </div>
+          <div class="inspector-body collapsed">
+            <div class="prop-row"><span class="prop-label">Type</span><select class="prop-select"><option>Static</option><option selected>Dynamic</option><option>Kinematic</option></select></div>
+            <div class="prop-row"><span class="prop-label">Mass</span><input class="prop-input" type="number" value="1" step="0.1"></div>
+            <div class="prop-row"><span class="prop-label">Drag</span><input class="prop-input" type="number" value="0" step="0.1"></div>
+            <div class="prop-row"><span class="prop-label">Grav</span><label class="prop-checkbox"><input type="checkbox" checked> Use Gravity</label></div>
+            <div class="prop-row"><span class="prop-label">Collider</span><select class="prop-select"><option>Box</option><option>Sphere</option><option>Mesh</option></select></div>
+            <div class="prop-row"><span class="prop-label">Trigger</span><label class="prop-checkbox"><input type="checkbox"> Is Trigger</label></div>
+          </div>
+        </div>
+
+        <!-- Scripts -->
+        <div class="inspector-section">
+          <div class="inspector-header" onclick="toggleSection(this)">
+            <span>Scripts</span><span class="arrow">▶</span>
+          </div>
+          <div class="inspector-body collapsed">
+            <div class="prop-row"><span class="prop-label">File</span><input class="prop-input" type="text" value="player.zpx" readonly></div>
+            <div class="prop-row"><span class="prop-label">Speed</span><input class="prop-input" type="number" value="5" step="0.5"></div>
+            <div class="prop-row"><span class="prop-label">Jump</span><input class="prop-input" type="number" value="10" step="0.5"></div>
+            <button class="add-component-btn">+ Add Script</button>
+          </div>
+        </div>
+
+        <!-- Audio -->
+        <div class="inspector-section">
+          <div class="inspector-header" onclick="toggleSection(this)">
+            <span>Audio Source</span><span class="arrow">▶</span>
+          </div>
+          <div class="inspector-body collapsed">
+            <div class="prop-row"><span class="prop-label">Clip</span><input class="prop-input" type="text" value="jump.wav" readonly></div>
+            <div class="prop-row"><span class="prop-label">Vol</span><input class="prop-input" type="range" min="0" max="1" step="0.1" value="0.8"></div>
+            <div class="prop-row"><span class="prop-label">Pitch</span><input class="prop-input" type="number" value="1" step="0.1"></div>
+            <div class="prop-row"><span class="prop-label">Loop</span><label class="prop-checkbox"><input type="checkbox"> Loop</label></div>
+            <div class="prop-row"><span class="prop-label">3D</span><label class="prop-checkbox"><input type="checkbox" checked> Spatial</label></div>
+          </div>
+        </div>
+
+        <!-- AI -->
         <div class="ai-box">
           <h4>AI Assistant</h4>
           <textarea class="ai-textarea" id="ai-input" placeholder="Describe your game..."></textarea>
@@ -576,8 +661,13 @@ zap_run()
       out.scrollTop = out.scrollHeight;
     }
 
-    function setTheme(theme) {
-      document.documentElement.setAttribute('data-theme', theme);
+    function setTheme(t) { document.documentElement.setAttribute('data-theme', t); }
+
+    function switchLeftTab(tab) {
+      document.querySelectorAll('.left-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.left-panel').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('panel-' + tab).classList.add('active');
     }
 
     function switchViewport(id) {
@@ -587,19 +677,39 @@ zap_run()
       event.target.classList.add('active');
     }
 
+    function toggleSection(el) {
+      el.classList.toggle('open');
+      el.nextElementSibling.classList.toggle('collapsed');
+    }
+
+    let currentGizmo = 'translate';
+    function setGizmo(g) {
+      currentGizmo = g;
+      document.querySelectorAll('.gizmo-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('gizmo-badge').textContent = g.charAt(0).toUpperCase() + g.slice(1);
+    }
+
+    let snapEnabled = false;
+    function toggleSnap() {
+      snapEnabled = !snapEnabled;
+      document.getElementById('snap-btn').classList.toggle('active', snapEnabled);
+      document.getElementById('snap-badge').textContent = 'Snap: ' + (snapEnabled ? 'On' : 'Off');
+    }
+
+    let wireframe = false;
+    function toggleWireframe() { wireframe = !wireframe; log('Wireframe: ' + wireframe); }
+    let gridVisible = true;
+    function toggleGrid() { gridVisible = !gridVisible; drawViewport(); }
+
     function runGame() { log('Running...'); ipcRenderer.invoke('run-game'); }
     function stopGame() { ipcRenderer.invoke('stop-game'); log('Stopped'); }
-    function formatCode() { log('Formatted'); }
-    function checkSyntax() { log('Syntax OK'); }
     function exportGame() { ipcRenderer.invoke('export-game', 'windows'); }
 
     function aiGenerate() {
       const p = document.getElementById('ai-input').value || 'A simple game';
       log('Generating: ' + p);
-      ipcRenderer.invoke('ai-generate', p).then(code => {
-        editor.value = code;
-        log('Generated!');
-      });
+      ipcRenderer.invoke('ai-generate', p).then(code => { editor.value = code; log('Generated!'); });
     }
 
     editor.addEventListener('keyup', () => {
@@ -607,7 +717,6 @@ zap_run()
       const lines = editor.value.substring(0, pos).split('\n');
       document.getElementById('status-cursor').textContent = `Ln ${lines.length}, Col ${lines[lines.length-1].length+1}`;
     });
-
     editor.addEventListener('keydown', e => {
       if (e.key === 'Tab') {
         e.preventDefault();
@@ -615,17 +724,17 @@ zap_run()
         editor.value = editor.value.substring(0, s) + '  ' + editor.value.substring(editor.selectionEnd);
         editor.selectionStart = editor.selectionEnd = s + 2;
       }
+      if (e.key === 'w' && !e.shiftKey) setGizmo('translate');
+      if (e.key === 'e') setGizmo('rotate');
+      if (e.key === 'r' && !e.shiftKey) setGizmo('scale');
     });
 
     const assets = [
-      { name: 'player.zpx', icon: '📦' },
-      { name: 'enemy.zpx', icon: '📦' },
-      { name: 'level1.zpx', icon: '📦' },
-      { name: 'grass.png', icon: '🖼' },
-      { name: 'jump.wav', icon: '🔊' },
-      { name: 'run.anim', icon: '🎬' },
+      { name: 'player.zpx', icon: '📦' }, { name: 'enemy.zpx', icon: '📦' },
+      { name: 'level1.zpx', icon: '📦' }, { name: 'grass.png', icon: '🖼' },
+      { name: 'jump.wav', icon: '🔊' }, { name: 'run.anim', icon: '🎬' },
+      { name: 'shader.glsl', icon: '✏️' }, { name: 'music.mp3', icon: '🎵' },
     ];
-
     function renderAssets() {
       const grid = document.getElementById('asset-grid');
       grid.innerHTML = '';
@@ -633,16 +742,12 @@ zap_run()
         const div = document.createElement('div');
         div.className = 'asset-item';
         div.innerHTML = `<div class="icon">${a.icon}</div><div class="name">${a.name}</div>`;
-        div.onclick = () => {
-          document.querySelectorAll('.asset-item').forEach(x => x.classList.remove('selected'));
-          div.classList.toggle('selected');
-        };
+        div.onclick = () => { document.querySelectorAll('.asset-item').forEach(x => x.classList.remove('selected')); div.classList.toggle('selected'); };
         grid.appendChild(div);
       });
     }
     renderAssets();
-
-    function importAsset() { log('Import asset'); }
+    function importAsset() { log('Import'); }
     function createAsset() { log('New asset'); }
 
     let tlFrame = 0;
@@ -652,6 +757,7 @@ zap_run()
     function tlNext() { tlFrame++; updateTL(); }
     function updateTL() { document.getElementById('tl-frame').textContent = 'Frame: ' + tlFrame; }
 
+    // 3D Viewport
     const vc = document.getElementById('viewport-canvas');
     const vctx = vc.getContext('2d');
     function resizeViewport() {
@@ -661,55 +767,73 @@ zap_run()
     }
     function drawViewport() {
       const cs = getComputedStyle(document.documentElement);
-      const bg = cs.getPropertyValue('--surface').trim();
-      const accent = cs.getPropertyValue('--accent').trim();
-      const border = cs.getPropertyValue('--border').trim();
-
-      vctx.fillStyle = bg;
+      vctx.fillStyle = cs.getPropertyValue('--surface').trim();
       vctx.fillRect(0, 0, vc.width, vc.height);
 
-      vctx.strokeStyle = border;
-      vctx.lineWidth = 0.5;
-      const cx = vc.width / 2, cy = vc.height / 2;
-      for (let i = -15; i <= 15; i++) {
-        vctx.beginPath();
-        vctx.moveTo(cx + i * 25, cy - 300);
-        vctx.lineTo(cx + i * 25, cy + 100);
-        vctx.stroke();
-        vctx.beginPath();
-        vctx.moveTo(cx - 375, cy + i * 25 + 100);
-        vctx.lineTo(cx + 375, cy + i * 25 + 100);
-        vctx.stroke();
+      if (gridVisible) {
+        vctx.strokeStyle = cs.getPropertyValue('--border').trim();
+        vctx.lineWidth = 0.5;
+        const cx = vc.width / 2, cy = vc.height / 2;
+        for (let i = -20; i <= 20; i++) {
+          vctx.beginPath(); vctx.moveTo(cx + i * 20, cy - 400); vctx.lineTo(cx + i * 20, cy + 120); vctx.stroke();
+          vctx.beginPath(); vctx.moveTo(cx - 400, cy + i * 20 + 120); vctx.lineTo(cx + 400, cy + i * 20 + 120); vctx.stroke();
+        }
       }
 
+      const accent = cs.getPropertyValue('--accent').trim();
+      const text2 = cs.getPropertyValue('--text2').trim();
+      const cx = vc.width / 2, cy = vc.height / 2;
+
+      // Player
       vctx.fillStyle = accent;
-      vctx.globalAlpha = 0.8;
-      vctx.fillRect(cx - 15, cy - 15, 30, 30);
-      vctx.globalAlpha = 0.4;
-      vctx.fillRect(cx - 120, cy + 50, 240, 15);
+      vctx.globalAlpha = 0.7;
+      vctx.fillRect(cx - 18, cy - 18, 36, 36);
       vctx.globalAlpha = 1;
 
-      vctx.fillStyle = cs.getPropertyValue('--text2').trim();
+      // Gizmo arrows
+      if (currentGizmo === 'translate') {
+        vctx.strokeStyle = '#ff4444'; vctx.lineWidth = 2;
+        vctx.beginPath(); vctx.moveTo(cx - 18, cy); vctx.lineTo(cx - 50, cy); vctx.stroke();
+        vctx.strokeStyle = '#44ff44';
+        vctx.beginPath(); vctx.moveTo(cx, cy - 18); vctx.lineTo(cx, cy - 50); vctx.stroke();
+        vctx.strokeStyle = '#4488ff';
+        vctx.beginPath(); vctx.moveTo(cx - 14, cy + 14); vctx.lineTo(cx - 36, cy + 36); vctx.stroke();
+      } else if (currentGizmo === 'rotate') {
+        vctx.strokeStyle = accent; vctx.lineWidth = 1;
+        vctx.beginPath(); vctx.arc(cx, cy, 30, 0, Math.PI * 2); vctx.stroke();
+        vctx.strokeStyle = '#ff4444';
+        vctx.beginPath(); vctx.arc(cx, cy, 30, 0, Math.PI * 0.5); vctx.stroke();
+      } else {
+        vctx.strokeStyle = accent; vctx.lineWidth = 2;
+        vctx.strokeRect(cx - 20, cy - 20, 40, 40);
+        vctx.fillStyle = accent; vctx.fillRect(cx + 16, cy + 16, 6, 6);
+      }
+
+      // Ground
+      vctx.fillStyle = text2;
+      vctx.globalAlpha = 0.3;
+      vctx.fillRect(cx - 120, cy + 50, 240, 12);
+      vctx.globalAlpha = 1;
+
+      // Labels
+      vctx.fillStyle = text2;
       vctx.font = '10px sans-serif';
-      vctx.fillText('Player', cx - 12, cy + 30);
-      vctx.fillText('Ground', cx - 12, cy + 78);
+      vctx.fillText('Player', cx - 12, cy + 28);
+      vctx.fillText('Ground', cx - 12, cy + 76);
     }
     window.addEventListener('resize', resizeViewport);
     setTimeout(resizeViewport, 100);
 
+    // Node editor
     const nc = document.getElementById('node-canvas');
     const nctx = nc.getContext('2d');
     const nodes = [
-      { id: 1, x: 100, y: 80, w: 130, h: 50, title: 'On Update', color: '#fff' },
-      { id: 2, x: 320, y: 60, w: 110, h: 45, title: 'Key "W"', color: '#888' },
-      { id: 3, x: 320, y: 130, w: 130, h: 45, title: 'Move Player', color: '#888' },
-      { id: 4, x: 540, y: 100, w: 110, h: 45, title: 'Camera', color: '#888' },
+      { id: 1, x: 80, y: 60, w: 120, h: 45, title: 'On Update', color: '#fff' },
+      { id: 2, x: 280, y: 40, w: 100, h: 40, title: 'Key "W"', color: '#888' },
+      { id: 3, x: 280, y: 110, w: 120, h: 40, title: 'Move', color: '#888' },
+      { id: 4, x: 480, y: 80, w: 100, h: 40, title: 'Camera', color: '#888' },
     ];
-    const connections = [
-      { from: 1, to: 3 },
-      { from: 2, to: 3 },
-      { from: 3, to: 4 },
-    ];
+    const connections = [{ from: 1, to: 3 }, { from: 2, to: 3 }, { from: 3, to: 4 }];
 
     function resizeNodes() {
       nc.width = nc.parentElement.clientWidth;
@@ -722,17 +846,11 @@ zap_run()
       nctx.fillRect(0, 0, nc.width, nc.height);
 
       nctx.fillStyle = cs.getPropertyValue('--border').trim();
-      for (let x = 0; x < nc.width; x += 20) {
-        for (let y = 0; y < nc.height; y += 20) {
-          nctx.fillRect(x, y, 1, 1);
-        }
-      }
+      for (let x = 0; x < nc.width; x += 20) for (let y = 0; y < nc.height; y += 20) nctx.fillRect(x, y, 1, 1);
 
-      nctx.strokeStyle = cs.getPropertyValue('--border').trim();
-      nctx.lineWidth = 2;
+      nctx.strokeStyle = cs.getPropertyValue('--border').trim(); nctx.lineWidth = 2;
       connections.forEach(c => {
-        const fn = nodes.find(n => n.id === c.from);
-        const tn = nodes.find(n => n.id === c.to);
+        const fn = nodes.find(n => n.id === c.from), tn = nodes.find(n => n.id === c.to);
         if (fn && tn) {
           nctx.beginPath();
           nctx.moveTo(fn.x + fn.w, fn.y + fn.h / 2);
@@ -746,16 +864,15 @@ zap_run()
         nctx.fillStyle = cs.getPropertyValue('--glass').trim();
         nctx.fillRect(n.x, n.y, n.w, n.h);
         nctx.strokeStyle = cs.getPropertyValue('--glass-border').trim();
-        nctx.lineWidth = 1;
-        nctx.strokeRect(n.x, n.y, n.w, n.h);
+        nctx.lineWidth = 1; nctx.strokeRect(n.x, n.y, n.w, n.h);
         nctx.fillStyle = cs.getPropertyValue('--text').trim();
-        nctx.font = '11px sans-serif';
-        nctx.fillText(n.title, n.x + 8, n.y + 28);
+        nctx.font = '11px sans-serif'; nctx.fillText(n.title, n.x + 8, n.y + 26);
       });
     }
     window.addEventListener('resize', resizeNodes);
     setTimeout(resizeNodes, 100);
 
+    // Timeline
     const tc = document.getElementById('timeline-canvas');
     const tctx = tc.getContext('2d');
     function resizeTimeline() {
@@ -767,57 +884,37 @@ zap_run()
       const cs = getComputedStyle(document.documentElement);
       tctx.fillStyle = cs.getPropertyValue('--surface').trim();
       tctx.fillRect(0, 0, tc.width, tc.height);
-
       tctx.fillStyle = cs.getPropertyValue('--surface2').trim();
-      tctx.fillRect(0, 0, tc.width, 24);
+      tctx.fillRect(0, 0, tc.width, 22);
 
-      tctx.fillStyle = cs.getPropertyValue('--text2').trim();
-      tctx.font = '9px monospace';
-      for (let i = 0; i < tc.width; i += 50) {
-        tctx.fillText((i / 3).toFixed(0) + 'f', i + 2, 12);
+      tctx.fillStyle = cs.getPropertyValue('--text2').trim(); tctx.font = '9px monospace';
+      for (let i = 0; i < tc.width; i += 40) {
+        tctx.fillText((i / 3).toFixed(0) + 'f', i + 2, 10);
         tctx.strokeStyle = cs.getPropertyValue('--border').trim();
-        tctx.beginPath();
-        tctx.moveTo(i, 20);
-        tctx.lineTo(i, tc.height);
-        tctx.stroke();
+        tctx.beginPath(); tctx.moveTo(i, 18); tctx.lineTo(i, tc.height); tctx.stroke();
       }
 
-      const tracks = [
-        { name: 'Player', y: 30, keys: [0, 30, 60, 90] },
-        { name: 'Camera', y: 58, keys: [0, 45, 90] },
-        { name: 'Enemy', y: 86, keys: [15, 60] },
-      ];
-      tracks.forEach(tr => {
+      [{ name: 'Player', y: 28, keys: [0, 30, 60, 90] },
+       { name: 'Camera', y: 54, keys: [0, 45, 90] },
+       { name: 'Enemy', y: 80, keys: [15, 60] }].forEach(tr => {
         tctx.fillStyle = cs.getPropertyValue('--glass').trim();
-        tctx.fillRect(0, tr.y, tc.width, 26);
-        tctx.fillStyle = cs.getPropertyValue('--text2').trim();
-        tctx.font = '10px sans-serif';
-        tctx.fillText(tr.name, 5, tr.y + 16);
+        tctx.fillRect(0, tr.y, tc.width, 24);
+        tctx.fillStyle = cs.getPropertyValue('--text2').trim(); tctx.font = '10px sans-serif';
+        tctx.fillText(tr.name, 4, tr.y + 15);
         tctx.fillStyle = cs.getPropertyValue('--accent').trim();
-        tr.keys.forEach(k => {
-          tctx.beginPath();
-          tctx.arc(k * 3 + 80, tr.y + 13, 4, 0, Math.PI * 2);
-          tctx.fill();
-        });
+        tr.keys.forEach(k => { tctx.beginPath(); tctx.arc(k * 3 + 70, tr.y + 12, 3, 0, Math.PI * 2); tctx.fill(); });
       });
 
-      tctx.strokeStyle = cs.getPropertyValue('--accent').trim();
-      tctx.lineWidth = 2;
-      const px = tlFrame * 3 + 80;
-      tctx.beginPath();
-      tctx.moveTo(px, 0);
-      tctx.lineTo(px, tc.height);
-      tctx.stroke();
+      tctx.strokeStyle = cs.getPropertyValue('--accent').trim(); tctx.lineWidth = 2;
+      const px = tlFrame * 3 + 70;
+      tctx.beginPath(); tctx.moveTo(px, 0); tctx.lineTo(px, tc.height); tctx.stroke();
     }
     window.addEventListener('resize', resizeTimeline);
     setTimeout(resizeTimeline, 100);
 
     ipcRenderer.on('game-output', (e, d) => log(d));
     ipcRenderer.on('game-error', (e, d) => log('ERROR: ' + d));
-    ipcRenderer.on('project-opened', (e, p) => {
-      document.getElementById('project-name').textContent = p;
-      log('Project: ' + p);
-    });
+    ipcRenderer.on('project-opened', (e, p) => { document.getElementById('project-name').textContent = p; log('Project: ' + p); });
 
     log('ZPX Studio ready');
   </script>
