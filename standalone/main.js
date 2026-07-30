@@ -274,8 +274,7 @@ async function aiGenerateCode(prompt) {
   const lower = prompt.toLowerCase();
   
   if (lower.includes('platformer')) {
-    return `
-import "zap.zpx"
+    return `import "zap.zpx"
 
 zap("Platformer", 1280, 720)
 
@@ -299,12 +298,233 @@ zap_on_update(fn(dt):
   zap_camera(pos[0], pos[1] + 3, 10)
 end)
 
-zap_run()
-`;
+zap_run()`;
   }
+
+  if (lower.includes('fps') || lower.includes('shooter')) {
+    return `import "zap.zpx"
+
+zap("FPS Game", 1280, 720)
+
+player = zap_cube(0, 1, 0)
+zap_color(player, 0.2, 0.6, 1.0)
+
+gun = zap_cube(0.3, 0.2, -0.5)
+zap_scale_to(gun, 0.1, 0.1, 0.5)
+zap_color(gun, 0.3, 0.3, 0.3)
+
+for i in range(5):
+  for j in range(3):
+    wall = zap_cube(-8 + i * 4, 1, -5 + j * 5)
+    zap_color(wall, 0.5, 0.4, 0.3)
+
+floor = zap_plane(0, 0, 0)
+zap_scale_to(floor, 30, 1, 30)
+zap_color(floor, 0.4, 0.4, 0.4)
+
+enemies = []
+for i in range(3):
+  e = zap_cube(-5 + i * 5, 1, -10)
+  zap_color(e, 1, 0, 0)
+  enemies.append(e)
+
+zap_on_update(fn(dt):
+  if zap_key("w"): zap_move(player, 0, 0, -8 * dt)
+  if zap_key("s"): zap_move(player, 0, 0, 8 * dt)
+  if zap_key("a"): zap_move(player, -8 * dt, 0, 0)
+  if zap_key("d"): zap_move(player, 8 * dt, 0, 0)
   
-  return `
-import "zap.zpx"
+  let pos = zap_pos(player)
+  zap_camera(pos[0], pos[1] + 1.7, pos[2])
+  
+  if zap_mouse("left"):
+    for e in enemies:
+      let ep = zap_pos(e)
+      let d = zap_dist(pos, ep)
+      if d < 15:
+        zap_destroy(e)
+end)
+
+zap_run()`;
+  }
+
+  if (lower.includes('racing')) {
+    return `import "zap.zpx"
+
+zap("Racing", 1280, 720)
+
+car = zap_cube(0, 0.5, 0)
+zap_scale_to(car, 1, 0.5, 2)
+zap_color(car, 0.2, 0.6, 1.0)
+
+track = zap_plane(0, -0.1, 0)
+zap_scale_to(track, 50, 1, 100)
+zap_color(track, 0.3, 0.3, 0.3)
+
+for i in range(20):
+  left = zap_cube(-10, 0.5, -45 + i * 5)
+  zap_color(left, 1, 1, 0)
+  right = zap_cube(10, 0.5, -45 + i * 5)
+  zap_color(right, 1, 1, 0)
+
+speed = 0
+zap_on_update(fn(dt):
+  global speed
+  if zap_key("w"): speed = speed + 20 * dt
+  if zap_key("s"): speed = speed - 30 * dt
+  speed = speed * 0.98
+  
+  if zap_key("a"): zap_move(car, -speed * dt, 0, 0)
+  if zap_key("d"): zap_move(car, speed * dt, 0, 0)
+  zap_move(car, 0, 0, -speed * dt)
+  
+  let pos = zap_pos(car)
+  zap_camera(pos[0], pos[1] + 8, pos[2] + 15)
+end)
+
+zap_run()`;
+  }
+
+  if (lower.includes('rpg')) {
+    return `import "zap.zpx"
+
+zap("RPG", 1280, 720)
+
+player = zap_cube(0, 0.5, 0)
+zap_color(player, 0.2, 0.6, 1.0)
+
+ground = zap_plane(0, 0, 0)
+zap_scale_to(ground, 30, 1, 30)
+zap_color(ground, 0.2, 0.5, 0.2)
+
+trees = []
+for i in range(6):
+  t = zap_cube(-12 + i * 5, 1.5, -10)
+  zap_scale_to(t, 0.5, 3, 0.5)
+  zap_color(t, 0.4, 0.3, 0.2)
+  leaves = zap_cube(-12 + i * 5, 3.5, -10)
+  zap_scale_to(leaves, 2, 2, 2)
+  zap_color(leaves, 0.1, 0.6, 0.1)
+
+enemies = []
+for i in range(4):
+  e = zap_cube(-8 + i * 5, 0.5, -8)
+  zap_color(e, 0.8, 0.2, 0.2)
+  enemies.append(e)
+
+hp = 100
+zap_on_update(fn(dt):
+  global hp
+  if zap_key("w"): zap_move(player, 0, 0, -5 * dt)
+  if zap_key("s"): zap_move(player, 0, 0, 5 * dt)
+  if zap_key("a"): zap_move(player, -5 * dt, 0, 0)
+  if zap_key("d"): zap_move(player, 5 * dt, 0, 0)
+  
+  let pos = zap_pos(player)
+  zap_camera(pos[0], pos[1] + 10, pos[2] + 12)
+  
+  if zap_key("space"):
+    for e in enemies:
+      let ep = zap_pos(e)
+      let d = zap_dist(pos, ep)
+      if d < 3:
+        zap_destroy(e)
+end)
+
+zap_run()`;
+  }
+
+  if (lower.includes('puzzle')) {
+    return `import "zap.zpx"
+
+zap("Puzzle", 1280, 720)
+
+player = zap_cube(0, 0.5, 0)
+zap_color(player, 0.2, 0.6, 1.0)
+
+ground = zap_plane(0, 0, 0)
+zap_scale_to(grid, 10, 1, 10)
+zap_color(ground, 0.9, 0.9, 0.9)
+
+blocks = []
+colors = [[1,0,0], [0,1,0], [0,0,1], [1,1,0]]
+for i in range(4):
+  b = zap_cube(-3 + i * 2, 0.5, 0)
+  zap_color(b, colors[i][0], colors[i][1], colors[i][2])
+  blocks.append(b)
+
+targets = []
+for i in range(4):
+  t = zap_cube(-3 + i * 2, 0.01, 5)
+  zap_color(t, 0.5, 0.5, 0.5)
+  zap_scale_to(t, 1.5, 0.1, 1.5)
+  targets.append(t)
+
+zap_on_update(fn(dt):
+  if zap_key("w"): zap_move(player, 0, 0, -5 * dt)
+  if zap_key("s"): zap_move(player, 0, 0, 5 * dt)
+  if zap_key("a"): zap_move(player, -5 * dt, 0, 0)
+  if zap_key("d"): zap_move(player, 5 * dt, 0, 0)
+  
+  let pos = zap_pos(player)
+  zap_camera(pos[0], 10, pos[2] + 8)
+end)
+
+zap_run()`;
+  }
+
+  if (lower.includes('space') || lower.includes('star')) {
+    return `import "zap.zpx"
+
+zap("Space Game", 1280, 720)
+
+ship = zap_cube(0, 0, 0)
+zap_scale_to(ship, 0.5, 0.3, 1)
+zap_color(ship, 0.7, 0.7, 0.8)
+
+for i in range(30):
+  star = zap_cube(
+    zap_random(-50, 50),
+    zap_random(-30, 30),
+    zap_random(-50, 50)
+  )
+  zap_scale_to(star, 0.1, 0.1, 0.1)
+  zap_color(star, 1, 1, 1)
+
+planets = []
+for i in range(3):
+  p = zap_sphere(
+    zap_random(-20, 20),
+    zap_random(-10, 10),
+    zap_random(-20, 20),
+    zap_random(1, 3)
+  )
+  zap_color(p, zap_random(0,1), zap_random(0,1), zap_random(0,1))
+
+bullets = []
+
+zap_on_update(fn(dt):
+  if zap_key("w"): zap_move(ship, 0, 0, -10 * dt)
+  if zap_key("s"): zap_move(ship, 0, 0, 10 * dt)
+  if zap_key("a"): zap_move(ship, -10 * dt, 0, 0)
+  if zap_key("d"): zap_move(ship, 10 * dt, 0, 0)
+  
+  if zap_key("space"):
+    b = zap_cube(zap_pos(ship))
+    zap_color(b, 1, 1, 0)
+    bullets.append(b)
+  
+  for b in bullets:
+    zap_move(b, 0, 0, -30 * dt)
+  
+  let pos = zap_pos(ship)
+  zap_camera(pos[0], pos[1] + 5, pos[2] + 10)
+end)
+
+zap_run()`;
+  }
+
+  return `import "zap.zpx"
 
 zap("AI Game", 1280, 720)
 
@@ -324,8 +544,7 @@ zap_on_update(fn(dt):
   zap_camera(pos[0], pos[1] + 5, pos[2] + 10)
 end)
 
-zap_run()
-`;
+zap_run()`;
 }
 
 function getTemplates() {
