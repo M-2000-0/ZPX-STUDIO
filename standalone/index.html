@@ -82,6 +82,22 @@
     .h-item .vis { width: 14px; text-align: center; font-size: 9px; opacity: 0.5; }
     .h-item .vis:hover { opacity: 1; }
 
+    /* ECS Browser */
+    .ecs-browser { padding: 2px; }
+    .ecs-section { margin-bottom: 2px; }
+    .ecs-hdr { display: flex; align-items: center; gap: 4px; padding: 4px 6px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text2); cursor: pointer; border-radius: 3px; user-select: none; }
+    .ecs-hdr:hover { background: var(--glass); }
+    .ecs-arr { font-size: 7px; transition: transform 0.15s; color: var(--text3); }
+    .ecs-hdr.open .ecs-arr { transform: rotate(90deg); }
+    .ecs-cnt { margin-left: auto; font-size: 9px; color: var(--text3); font-weight: 400; }
+    .ecs-body { display: none; padding: 1px 0 2px 16px; }
+    .ecs-hdr.open + .ecs-body { display: block; }
+    .ecs-item { display: flex; align-items: center; gap: 4px; padding: 2px 6px; font-size: 10px; color: var(--text2); cursor: pointer; border-radius: 2px; transition: all 0.1s; }
+    .ecs-item:hover { background: var(--glass); color: var(--text); }
+    .ecs-item .ecs-ico { width: 12px; text-align: center; font-size: 9px; }
+    .ecs-item .ecs-sub { font-size: 8px; color: var(--text3); margin-left: auto; }
+    .ecs-item .ecs-file { font-size: 8px; color: var(--text3); margin-left: 4px; }
+
     .center { flex: 1; display: flex; flex-direction: column; }
 
     /* Toolbar */
@@ -244,6 +260,7 @@
       <div class="left-tabs">
         <div class="left-tab active" onclick="switchLeftTab(this,'files')">Files</div>
         <div class="left-tab" onclick="switchLeftTab(this,'hierarchy')">Hierarchy</div>
+        <div class="left-tab" onclick="switchLeftTab(this,'ecs')">ECS</div>
       </div>
       <div class="left-panel active" id="p-files">
         <ul class="file-tree">
@@ -262,6 +279,27 @@
       </div>
       <div class="left-panel" id="p-hierarchy">
         <div id="hierarchy-tree"></div>
+      </div>
+      <div class="left-panel" id="p-ecs">
+        <div class="ecs-browser" id="ecs-browser">
+          <div class="ecs-section">
+            <div class="ecs-hdr" onclick="togECS(this)"><span class="ecs-arr">▶</span> Entities <span class="ecs-cnt" id="ecs-entity-count">0</span></div>
+            <div class="ecs-body" id="ecs-entity-list"></div>
+          </div>
+          <div class="ecs-section">
+            <div class="ecs-hdr" onclick="togECS(this)"><span class="ecs-arr">▶</span> Components <span class="ecs-cnt" id="ecs-comp-count">0</span></div>
+            <div class="ecs-body" id="ecs-comp-list"></div>
+          </div>
+          <div class="ecs-section">
+            <div class="ecs-hdr" onclick="togECS(this)"><span class="ecs-arr">▶</span> Systems <span class="ecs-cnt" id="ecs-sys-count">0</span></div>
+            <div class="ecs-body" id="ecs-sys-list"></div>
+          </div>
+          <div class="ecs-section">
+            <div class="ecs-hdr" onclick="togECS(this)"><span class="ecs-arr">▶</span> Scenes <span class="ecs-cnt" id="ecs-scene-count">0</span></div>
+            <div class="ecs-body" id="ecs-scene-list"></div>
+          </div>
+        </div>
+        <div style="padding:6px;font-size:10px;color:var(--text2);text-align:center" id="ecs-status">Scan project to see ECS graph</div>
       </div>
     </div>
 
@@ -561,23 +599,92 @@ zap_run()
     function updateCmdHL(items) { items.forEach((el, i) => el.classList.toggle('highlight', i === cmdHighlight)); }
     function execCmd(idx) { closeOverlay(); commands[idx].action(); }
 
+    // === Semantic Project Graph ===
+    let ecsData = null;
+    let searchItems = [];
+
+    async function scanProject() {
+      const result = await ipcRenderer.invoke('scan-project');
+      if (result && !result.error) {
+        ecsData = result;
+        const items = [];
+
+        if (result.files) {
+          Object.keys(result.files).forEach(fp => {
+            const rel = fp.replace(/^.*?[\\\/](?=[^\\\/]*\.zpx)/, '');
+            items.push({ icon: '📄', label: fp.split(/[\\\/]/).pop(), type: 'file', file: fp });
+          });
+        }
+
+        if (result.ecs_graph) {
+          const g = result.ecs_graph;
+          Object.keys(g.entities || {}).forEach(name => {
+            items.push({ icon: '✦', label: name + ' (Entity)', type: 'entity', ecs: 'entity' });
+          });
+          Object.keys(g.components || {}).forEach(name => {
+            items.push({ icon: '■', label: name + ' (Component)', type: 'component', ecs: 'component' });
+          });
+          Object.keys(g.systems || {}).forEach(name => {
+            items.push({ icon: '⚙', label: name + ' (System)', type: 'system', ecs: 'system' });
+          });
+          Object.keys(g.scenes || {}).forEach(name => {
+            items.push({ icon: '◈', label: name + ' (Scene)', type: 'scene', ecs: 'scene' });
+          });
+        }
+
+        searchItems = items;
+        renderECSGraph(g);
+        document.getElementById('ecs-status').textContent = 'Scan complete: ' + items.length + ' items';
+      } else {
+        document.getElementById('ecs-status').textContent = result ? 'Error: ' + result.error : 'Scan failed';
+      }
+    }
+
+    function renderECSGraph(g) {
+      if (!g) return;
+
+      const entityList = document.getElementById('ecs-entity-list');
+      const compList = document.getElementById('ecs-comp-list');
+      const sysList = document.getElementById('ecs-sys-list');
+      const sceneList = document.getElementById('ecs-scene-list');
+
+      const entities = Object.keys(g.entities || {});
+      const components = Object.keys(g.components || {});
+      const systems = Object.keys(g.systems || {});
+      const scenes = Object.keys(g.scenes || {});
+
+      document.getElementById('ecs-entity-count').textContent = entities.length;
+      document.getElementById('ecs-comp-count').textContent = components.length;
+      document.getElementById('ecs-sys-count').textContent = systems.length;
+      document.getElementById('ecs-scene-count').textContent = scenes.length;
+
+      entityList.innerHTML = entities.map(name => {
+        const e = g.entities[name];
+        return `<div class="ecs-item" onclick="log('Entity: ${name}')"><span class="ecs-ico">✦</span>${name}${e.components && e.components.length ? '<span class="ecs-sub">' + e.components.length + ' comps</span>' : ''}</div>`;
+      }).join('');
+
+      compList.innerHTML = components.map(name => {
+        const c = g.components[name];
+        return `<div class="ecs-item" onclick="log('Component: ${name}')"><span class="ecs-ico">■</span>${name}<span class="ecs-file">${c.fields ? Object.keys(c.fields).length + ' fields' : ''}</span></div>`;
+      }).join('');
+
+      sysList.innerHTML = systems.map(name => {
+        const s = g.systems[name];
+        const deps = s.requires ? s.requires.join(', ') : '';
+        return `<div class="ecs-item" onclick="log('System: ${name}')"><span class="ecs-ico">⚙</span>${name}<span class="ecs-sub">${deps || ''}</span></div>`;
+      }).join('');
+
+      sceneList.innerHTML = scenes.map(name => {
+        const s = g.scenes[name];
+        const ents = s.entities ? s.entities.join(', ') : '';
+        return `<div class="ecs-item" onclick="log('Scene: ${name}')"><span class="ecs-ico">◈</span>${name}<span class="ecs-sub">${ents || ''}</span></div>`;
+      }).join('');
+    }
+
+    function togECS(el) { el.classList.toggle('open'); }
+
     // === Quick Search ===
-    const searchItems = [
-      { icon: '📄', label: 'main.zpx', type: 'file' },
-      { icon: '📄', label: 'project.json', type: 'file' },
-      { icon: '📄', label: 'scenes/level1.zpx', type: 'file' },
-      { icon: '📄', label: 'scripts/player.zpx', type: 'file' },
-      { icon: '📄', label: 'scripts/enemy.zpx', type: 'file' },
-      { icon: '✦', label: 'Player (Entity)', type: 'entity' },
-      { icon: '✦', label: 'Enemy (Entity)', type: 'entity' },
-      { icon: '■', label: 'Transform (Component)', type: 'component' },
-      { icon: '■', label: 'Rigidbody (Component)', type: 'component' },
-      { icon: '■', label: 'MeshRenderer (Component)', type: 'component' },
-      { icon: '■', label: 'PlayerController (Component)', type: 'component' },
-      { icon: '⚙', label: 'Movement (System)', type: 'system' },
-      { icon: '⚙', label: 'Physics (System)', type: 'system' },
-      { icon: '◈', label: 'Level1 (Scene)', type: 'scene' },
-    ];
+    scanProject();
     let qsHighlight = 0;
     function openQuickSearch() {
       document.getElementById('qs-input').value = '';
@@ -608,6 +715,18 @@ zap_run()
 
     // === AI Chat ===
     const aiHistory = [];
+    function buildAIContext() {
+      let ctx = '';
+      if (ecsData) {
+        ctx += 'Project has:\n';
+        const g = ecsData.ecs_graph || {};
+        if (g.entities) ctx += '- Entities: ' + Object.keys(g.entities).join(', ') + '\n';
+        if (g.components) ctx += '- Components: ' + Object.keys(g.components).join(', ') + '\n';
+        if (g.systems) ctx += '- Systems: ' + Object.keys(g.systems).join(', ') + '\n';
+        if (g.scenes) ctx += '- Scenes: ' + Object.keys(g.scenes).join(', ') + '\n';
+      }
+      return ctx;
+    }
     function aiChat() {
       const input = document.getElementById('ai-input');
       const msg = input.value.trim();
@@ -615,23 +734,47 @@ zap_run()
       input.value = '';
       addAIMsg(msg, 'user');
       aiHistory.push({role:'user',content:msg});
-      if (msg.toLowerCase().includes('platformer') || msg.toLowerCase().includes('player')) {
+      const context = buildAIContext();
+      const lower = msg.toLowerCase();
+
+      if (lower.includes('what') && (lower.includes('project') || lower.includes('ecs') || lower.includes('entity'))) {
         setTimeout(() => {
-          const reply = 'Here is a simple player controller:\n\n' +
-            '```zpx\nfn player_update(dt):\n  if key("a"): move(-5 * dt, 0, 0)\n  if key("d"): move(5 * dt, 0, 0)\n  if key("space"): jump(8)\n```\n\n' +
-            'Add this to your game script. Make sure to call it each frame.';
+          const reply = context || 'No project is currently open. Open a project to see its structure.';
+          addAIMsg(reply, 'assistant');
+          aiHistory.push({role:'assistant',content:reply});
+        }, 200);
+      } else if (lower.includes('platformer') || lower.includes('player') || lower.includes('movement')) {
+        setTimeout(() => {
+          const reply = 'Here is a player controller using ECS:\n\n' +
+            '```zpx\nimport "lib/ecs.zpx"\n\n' +
+            'comp Movement:\n  speed: 5\nend\n\n' +
+            'fn move_system(world, dt):\n  for e in ECS.query(world, ["Movement"]):\n    let m = ECS.get_component(world, e, "Movement")\n    m.fields["x"] += m.fields["speed"] * dt\nend\n\n' +
+            'ECS.register_system(world, "MoveSystem", ["Movement"], move_system)\n```\n\n' +
+            'Add this to your main.zpx and register the system.';
           addAIMsg(reply, 'assistant');
           aiHistory.push({role:'assistant',content:reply});
         }, 300);
-      } else if (msg.toLowerCase().includes('error') || msg.toLowerCase().includes('bug')) {
+      } else if (lower.includes('error') || lower.includes('bug') || lower.includes('fix')) {
         setTimeout(() => {
-          const reply = 'Let me check your code for issues...\n\n1. Check that all variables are defined\n2. Verify import paths\n3. Make sure function signatures match\n4. Look for missing `end` keywords\n\nCan you share the error message?';
+          const reply = 'Let me check your code for issues:\n\n' +
+            '1. Ensure all imports use correct paths (e.g., `import "lib/ecs.zpx"`)\n' +
+            '2. Verify components are added before systems query them\n' +
+            '3. Check for missing `end` keywords in blocks\n' +
+            '4. Make sure entity names match in strings\n\n' +
+            (context ? 'Context: ' + context : '') +
+            'Can you share the error message or code snippet?';
           addAIMsg(reply, 'assistant');
           aiHistory.push({role:'assistant',content:reply});
         }, 300);
       } else {
         setTimeout(() => {
-          const reply = 'Great question! Here are some suggestions:\n\n- Check the ZPX documentation for built-in functions\n- Use `ECS.World()` to create an ECS world\n- Entities can have components via `ECS.add_component()`\n- Systems query entities with `ECS.query()`\n\nWant me to generate specific code for your use case?';
+          let reply = 'Great question! Here are some suggestions:\n\n' +
+            '- Use `ECS.World()` to create an ECS world\n' +
+            '- Entities can have components via `ECS.add_component()`\n' +
+            '- Systems query entities with `ECS.query()` and run each frame\n' +
+            '- Scenes organize your game into levels\n\n';
+          if (context) reply += 'Current project:\n' + context;
+          else reply += 'Want me to generate specific code for your use case?';
           addAIMsg(reply, 'assistant');
           aiHistory.push({role:'assistant',content:reply});
         }, 300);
@@ -651,9 +794,13 @@ zap_run()
       const input = document.getElementById('ai-input');
       const msg = input.value.trim() || 'Create a game prototype';
       addAIMsg(msg, 'user');
-      setTimeout(() => {
-        addAIMsg('Generating code based on your description...\n\n```zpx\nimport "lib/ecs.zpx"\n\nworld = ECS.World()\nplayer = ECS.create_entity(world, "player")```', 'assistant');
-      }, 200);
+      const context = buildAIContext();
+      const prompt = context ? msg + '\n\nContext:\n' + context : msg;
+      ipcRenderer.invoke('ai-generate', prompt).then(code => {
+        addAIMsg('Here is the generated code:\n\n```zpx\n' + (code || '// Could not generate code') + '\n```', 'assistant');
+      }).catch(() => {
+        addAIMsg('Could not generate code. Is the ZPX interpreter available?', 'assistant');
+      });
     }
     function runGame() { log('Game started'); document.querySelector('.status-left').innerHTML = '<span>Running...</span><span>ZPX</span>'; }
     function stopGame() { log('Game stopped'); document.querySelector('.status-left').innerHTML = '<span>Ready</span><span>ZPX</span>'; }
@@ -1020,7 +1167,7 @@ zap_run()
 
     ipcRenderer.on('game-output', (e,d) => log(d));
     ipcRenderer.on('game-error', (e,d) => log('ERROR: '+d));
-    ipcRenderer.on('project-opened', (e,p) => { document.getElementById('project-name').textContent = p; log('Project: '+p); });
+    ipcRenderer.on('project-opened', (e,p) => { document.getElementById('project-name').textContent = p; log('Project: '+p); scanProject(); });
 
     log('ZPX Studio ready');
   </script>
