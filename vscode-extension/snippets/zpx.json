@@ -1,0 +1,228 @@
+{
+  "Function": {
+    "prefix": "fn",
+    "body": [
+      "fn ${1:name}(${2:params}):",
+      "  ${3:ret }"
+    ],
+    "description": "Define a function"
+  },
+  "Class": {
+    "prefix": "class",
+    "body": [
+      "class ${1:Name}:",
+      "  fn init(self${2:, args}):",
+      "    ${3:self.value = value}"
+    ],
+    "description": "Define a class"
+  },
+  "If": {
+    "prefix": "if",
+    "body": [
+      "if ${1:condition}:",
+      "  ${2:pass}"
+    ],
+    "description": "If statement"
+  },
+  "If El": {
+    "prefix": "ifel",
+    "body": [
+      "if ${1:condition}:",
+      "  ${2:pass}",
+      "el:",
+      "  ${3:pass}"
+    ],
+    "description": "If/else statement"
+  },
+  "For": {
+    "prefix": "for",
+    "body": [
+      "for ${1:item} in ${2:range}(${3:n}):",
+      "  ${4:pass}"
+    ],
+    "description": "For loop"
+  },
+  "While": {
+    "prefix": "while",
+    "body": [
+      "while ${1:condition}:",
+      "  ${2:pass}"
+    ],
+    "description": "While loop"
+  },
+  "Print": {
+    "prefix": "print",
+    "body": [
+      "print(${1:value})"
+    ],
+    "description": "Print statement"
+  },
+  "Let": {
+    "prefix": "let",
+    "body": [
+      "let ${1:name} = ${2:value}"
+    ],
+    "description": "Variable declaration"
+  },
+  "Lambda": {
+    "prefix": "lambda",
+    "body": [
+      "fn(${1:args}): ${2:ret }"
+    ],
+    "description": "Lambda function"
+  },
+  "Import": {
+    "prefix": "import",
+    "body": [
+      "import \"${1:module}\""
+    ],
+    "description": "Import module"
+  },
+  "Test": {
+    "prefix": "test",
+    "body": [
+      "test \"${1:description}\":",
+      "  let result = ${2:expression}",
+      "  expect result == ${3:expected}"
+    ],
+    "description": "Test case"
+  },
+  "Match": {
+    "prefix": "match",
+    "body": [
+      "match ${1:value}:",
+      "  ${2:case1}: ${3:action}",
+      "  ${4:_}: ${5:default}"
+    ],
+    "description": "Pattern matching"
+  },
+  "Schema": {
+    "prefix": "schema",
+    "body": [
+      "schema ${1:Name}:",
+      "  ${2:field}: ${3:type}"
+    ],
+    "description": "Schema definition"
+  },
+  "API": {
+    "prefix": "api",
+    "body": [
+      "api ${1:GET} \"${2:/path}\":",
+      "  ${3:ret data}"
+    ],
+    "description": "API endpoint"
+  },
+  "Service": {
+    "prefix": "service",
+    "body": [
+      "service ${1:ServiceName}:",
+      "  version \"${2:1.0.0}\"",
+      "  ${3:fn method(self): ret none}"
+    ],
+    "description": "Service definition"
+  },
+  "Database": {
+    "prefix": "database",
+    "body": [
+      "database \"${1:mydb}\":",
+      "  ${2:table}:",
+      "    ${3:id}: TEXT PRIMARY KEY"
+    ],
+    "description": "Database definition"
+  },
+  "Concurrent": {
+    "prefix": "concurrent",
+    "body": [
+      "concurrent:",
+      "  ${1:task1()}",
+      "  ${2:task2()}"
+    ],
+    "description": "Concurrent execution"
+  },
+  "Expect": {
+    "prefix": "expect",
+    "body": [
+      "expect ${1:condition} \"${2:message}\""
+    ],
+    "description": "Expect assertion"
+  },
+  "Check": {
+    "prefix": "check",
+    "body": [
+      "check:",
+      "  expect ${1:1 + 1 == 2} \"${2:math works}\""
+    ],
+    "description": "Check block"
+  },
+  "Permission": {
+    "prefix": "permission",
+    "body": [
+      "permission ${1:name} \"${2:description}\""
+    ],
+    "description": "Permission declaration"
+  },
+  "Game Init": {
+    "prefix": "gameinit",
+    "body": [
+      "import \"zap.zpx\"",
+      "",
+      "zap(\"${1:My Game}\", ${2:1280}, ${3:720})",
+      "",
+      "${4:player = zap_cube(0, 0, 0)}",
+      "",
+      "zap_on_update(fn(dt):",
+      "  ${5:pass}",
+      "end)",
+      "",
+      "zap_run()"
+    ],
+    "description": "Initialize a ZPX game"
+  },
+  "Entity Spawn": {
+    "prefix": "spawn",
+    "body": [
+      "let ${1:id} = zap_${2:cube}(${3:0}, ${4:0}, ${5:0})",
+      "zap_color(${1:id}, ${6:1.0}, ${7:1.0}, ${8:1.0})"
+    ],
+    "description": "Spawn a game entity"
+  },
+  "Player Movement": {
+    "prefix": "playermove",
+    "body": [
+      "zap_on_update(fn(dt):",
+      "  if zap_key(\"w\"): zap_move(${1:player}, 0, 0, -${2:5} * dt)",
+      "  if zap_key(\"s\"): zap_move(${1:player}, 0, 0, ${2:5} * dt)",
+      "  if zap_key(\"a\"): zap_move(${1:player}, -${2:5} * dt, 0, 0)",
+      "  if zap_key(\"d\"): zap_move(${1:player}, ${2:5} * dt, 0, 0)",
+      "  let pos = zap_pos(${1:player})",
+      "  zap_camera(pos[0], pos[1] + ${3:5}, pos[2] + ${4:10})",
+      "end)"
+    ],
+    "description": "Player movement with WASD"
+  },
+  "Enemy AI": {
+    "prefix": "enemyai",
+    "body": [
+      "zap_on_update(fn(dt):",
+      "  for ${1:enemy} in zap_find(\"${2:enemy}\"):",
+      "    let epos = zap_pos(${1:enemy})",
+      "    let ppos = zap_pos(${3:player})",
+      "    let dx = ppos[0] - epos[0]",
+      "    let dz = ppos[2] - epos[2]",
+      "    let dist = sqrt(dx * dx + dz * dz)",
+      "    if dist > 0 and dist < ${4:20}:",
+      "      zap_move(${1:enemy}, dx / dist * ${5:3} * dt, 0, dz / dist * ${5:3} * dt)",
+      "end)"
+    ],
+    "description": "Enemy chase AI"
+  },
+  "Collision Check": {
+    "prefix": "collision",
+    "body": [
+      "for ${1:entity} in zap_find(\"${2:tag}\"):",
+      "  if zap_dist(${3:player}, ${1:entity}) < ${4:2.0}:",
+      "    ${5:zap_destroy(${1:entity})}"
+    ],
+    "description": "Collision detection"
+  }
+}

@@ -1,0 +1,255 @@
+{
+  "name": "zpx-studio",
+  "displayName": "ZPX Studio",
+  "description": "AI-Native Game Engine IDE for ZPX programming language",
+  "version": "1.0.0",
+  "publisher": "M-2000-0",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Linters",
+    "Formatters",
+    "Game Engines"
+  ],
+  "keywords": [
+    "zpx",
+    "game",
+    "engine",
+    "ai",
+    "programming",
+    "gamedev"
+  ],
+  "icon": "media/icon.png",
+  "activationEvents": [
+    "onLanguage:zpx",
+    "onCommand:zpx.run",
+    "onCommand:zpx.newProject",
+    "onCommand:zpx.aiGenerate"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "zpx",
+        "aliases": [
+          "ZPX",
+          "zpx"
+        ],
+        "extensions": [
+          ".zpx"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "zpx",
+        "scopeName": "source.zpx",
+        "path": "./syntaxes/zpx.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "zpx",
+        "path": "./snippets/zpx.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "zpx.run",
+        "title": "ZPX: Run Game",
+        "icon": "$(play)"
+      },
+      {
+        "command": "zpx.runDebug",
+        "title": "ZPX: Run Game (Debug)",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "zpx.stop",
+        "title": "ZPX: Stop Game",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "zpx.newProject",
+        "title": "ZPX: New Project",
+        "icon": "$(file-directory-create)"
+      },
+      {
+        "command": "zpx.newFile",
+        "title": "ZPX: New ZPX File",
+        "icon": "$(file-add)"
+      },
+      {
+        "command": "zpx.aiGenerate",
+        "title": "ZPX: AI Generate Game",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "zpx.aiExplain",
+        "title": "ZPX: AI Explain Code",
+        "icon": "$(question)"
+      },
+      {
+        "command": "zpx.template",
+        "title": "ZPX: New Project from Template",
+        "icon": "$(repo)"
+      },
+      {
+        "command": "zpx.export",
+        "title": "ZPX: Export Game",
+        "icon": "$(export)"
+      },
+      {
+        "command": "zpx.openREPL",
+        "title": "ZPX: Open REPL",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "zpx.format",
+        "title": "ZPX: Format Document",
+        "icon": "$(code)"
+      },
+      {
+        "command": "zpx.checkSyntax",
+        "title": "ZPX: Check Syntax",
+        "icon": "$(checklist)"
+      },
+      {
+        "command": "zpx.hotReload",
+        "title": "ZPX: Enable Hot Reload",
+        "icon": "$(sync)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "zpx.run",
+          "when": "editorLangId == zpx",
+          "group": "zpx"
+        },
+        {
+          "command": "zpx.aiExplain",
+          "when": "editorLangId == zpx",
+          "group": "zpx"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "zpx.run",
+          "when": "resourceExtname == .zpx",
+          "group": "zpx"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "zpx.run",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r"
+      },
+      {
+        "command": "zpx.stop",
+        "key": "ctrl+shift+s",
+        "mac": "cmd+shift+s"
+      },
+      {
+        "command": "zpx.aiGenerate",
+        "key": "ctrl+shift+g",
+        "mac": "cmd+shift+g"
+      }
+    ],
+    "configuration": {
+      "title": "ZPX Studio",
+      "properties": {
+        "zpx.executable": {
+          "type": "string",
+          "default": "zpx",
+          "description": "Path to ZPX executable"
+        },
+        "zpx.autoRun": {
+          "type": "boolean",
+          "default": false,
+          "description": "Auto-run on save"
+        },
+        "zpx.hotReload": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable hot reload"
+        },
+        "zpx.aiProvider": {
+          "type": "string",
+          "default": "openai",
+          "enum": [
+            "openai",
+            "anthropic",
+            "local"
+          ],
+          "description": "AI provider for code generation"
+        },
+        "zpx.aiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key for AI provider"
+        },
+        "zpx.formatOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Format on save"
+        },
+        "zpx.lintOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Lint on save"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "zpx-studio",
+          "title": "ZPX Studio",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "zpx-studio": [
+        {
+          "id": "zpx.templates",
+          "name": "Templates",
+          "icon": "media/templates.svg"
+        },
+        {
+          "id": "zpx.assets",
+          "name": "Assets",
+          "icon": "media/assets.svg"
+        },
+        {
+          "id": "zpx.ai",
+          "name": "AI Assistant",
+          "icon": "media/ai.svg"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "eslint": "^8.50.0",
+    "@vscode/test-electron": "^2.3.0"
+  },
+  "dependencies": {}
+}
