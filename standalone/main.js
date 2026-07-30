@@ -361,67 +361,30 @@ async function newProject() {
   fs.mkdirSync(path.join(projectPath, 'assets'), { recursive: true });
   fs.mkdirSync(path.join(projectPath, 'scripts'), { recursive: true });
 
-  const mainContent = `import "lib/ecs.zpx"
+  const mainContent = `import "lib/engine.zpx"
 
-world = ECS.World()
+eng_create_world("main")
 
-player = ECS.create_entity(world, "player")
-ground = ECS.create_entity(world, "ground")
+let player = eng_spawn("player")
+let ground = eng_spawn("ground")
 
-comp Transform:
-  x: 0
-  y: 0
-  z: 0
-end
-
-comp Velocity:
-  x: 0
-  y: 0
-  z: 0
-end
-
-comp Render:
-  mesh: "cube"
-  color: [1, 1, 1]
-end
+eng_add_comp(player, "Velocity", Velocity(0, 0, 0))
+eng_add_comp(ground, "Render", Render("plane", 0.3, 0.7, 0.3))
 
 fn movement_sys(world, dt):
   for e in ECS.query(world, ["Transform", "Velocity"]):
     let t = ECS.get_component(world, e, "Transform")
     let v = ECS.get_component(world, e, "Velocity")
-    t.fields["x"] += v.fields["x"] * dt
-    t.fields["y"] += v.fields["y"] * dt
-    t.fields["z"] += v.fields["z"] * dt
-end
+    t.x += v.x * dt
+    t.y += v.y * dt
+    t.z += v.z * dt
 
-fn player_control(dt):
-  let v = ECS.get_component(world, player, "Velocity")
-  v.fields["x"] = 0
-  v.fields["z"] = 0
-  if key("d"): v.fields["x"] = 5
-  if key("a"): v.fields["x"] = -5
-  if key("w"): v.fields["z"] = -5
-  if key("s"): v.fields["z"] = 5
-end
-
-ECS.add_component(world, player, "Transform", Transform())
-ECS.add_component(world, player, "Velocity", Velocity())
-ECS.add_component(world, player, "Render", Render())
-
-ECS.add_component(world, ground, "Transform", Transform())
-ECS.add_component(world, ground, "Render", Render())
-
-let gr = ECS.get_component(world, ground, "Render")
-gr.fields["color"] = [0.3, 0.7, 0.3]
-
-ECS.register_system(world, "PlayerControl", ["Velocity"], player_control)
-ECS.register_system(world, "Movement", ["Transform", "Velocity"], movement_sys)
-
+let state = {frame: 0}
 fn main_loop():
-  ECS.run_systems(world, 0.016)
-end
+  state.frame += 1
+  eng_tick(0.016)
 
-print("ECS game ready with", ECS.entity_count(world), "entities")
+print("Game ready — entities:", eng_count())
 `;
 
   fs.writeFileSync(path.join(projectPath, 'main.zpx'), mainContent);
