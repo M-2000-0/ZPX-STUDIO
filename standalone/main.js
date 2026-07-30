@@ -3,6 +3,22 @@ const path = require('path');
 const fs = require('fs');
 const { spawn, exec } = require('child_process');
 
+function findZPX() {
+  const candidates = [
+    path.join(__dirname, '..', '..', 'zpx'),
+    path.join(__dirname, '..', '..', 'ZPX'),
+    process.env.ZPX_HOME,
+    path.join(app.getPath('home'), 'zpx'),
+    path.join(app.getPath('home'), 'ZPX'),
+  ].filter(Boolean);
+  for (const dir of candidates) {
+    const cli = path.join(dir, 'src', 'cli.py');
+    if (fs.existsSync(cli)) return cli;
+  }
+  return null;
+}
+const EVAL_SCRIPT = findZPX();
+
 let mainWindow;
 let gameProcess;
 let currentProject = null;
@@ -149,6 +165,48 @@ ipcMain.handle('export-game', async (event, platform) => {
   return await exportGame(platform);
 });
 
+ipcMain.handle('scan-project', async (event) => {
+  if (!currentProject) return { error: 'No project open' };
+  try {
+    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+    const result = await new Promise((resolve, reject) => {
+      const child = spawn(pythonCmd, [EVAL_SCRIPT, '--scan', currentProject]);
+      let out = '';
+      child.stdout.on('data', d => out += d.toString());
+      child.on('close', () => {
+        try { resolve(JSON.parse(out)); }
+        catch { resolve({ error: 'Failed to parse scan result' }); }
+      });
+      child.on('error', reject);
+    });
+    return result;
+  } catch (e) {
+    return { error: e.message };
+  }
+});
+
+ipcMain.handle('run-zpx', async (event, code) => {
+  try {
+    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+    const tempFile = path.join(app.getPath('temp'), 'zpx_run_temp.zpx');
+    fs.writeFileSync(tempFile, code, 'utf8');
+    const result = await new Promise((resolve, reject) => {
+      const child = spawn(pythonCmd, [EVAL_SCRIPT, 'run', tempFile]);
+      let out = '', err = '';
+      child.stdout.on('data', d => out += d.toString());
+      child.stderr.on('data', d => err += d.toString());
+      child.on('close', (code) => {
+        fs.unlink(tempFile, () => {});
+        resolve({ stdout: out, stderr: err, code });
+      });
+      child.on('error', reject);
+    });
+    return result;
+  } catch (e) {
+    return { error: e.message };
+  }
+});
+
 // Game functions
 function runGame() {
   if (!currentProject) {
@@ -162,11 +220,18 @@ function runGame() {
     return;
   }
 
+  if (!EVAL_SCRIPT) {
+    dialog.showErrorBox('ZPX Not Found', 'Set ZPX_HOME environment variable to your ZPX installation');
+    return;
+  }
+
   if (gameProcess) {
     gameProcess.kill();
   }
 
-  gameProcess = spawn('zpx', ['run', mainFile], {
+  // Run using the ZPX Python interpreter
+  const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+  gameProcess = spawn(pythonCmd, [EVAL_SCRIPT, 'run', mainFile], {
     cwd: currentProject,
     stdio: 'pipe'
   });
@@ -210,27 +275,20 @@ async function newProject() {
   fs.mkdirSync(path.join(projectPath, 'assets'), { recursive: true });
   fs.mkdirSync(path.join(projectPath, 'scenes'), { recursive: true });
 
-  const mainContent = `import "zap.zpx"
+  const mainContent = `import "lib/ecs.zpx"
 
-zap("My Game", 1280, 720)
+world = ECS.World()
 
-player = zap_cube(0, 0, 0)
-zap_color(player, 0.2, 0.6, 1.0)
+player = ECS.create_entity(world, "player")
+enemy = ECS.create_entity(world, "enemy")
 
-ground = zap_plane(0, -1, 0)
-zap_scale_to(ground, 20, 1, 20)
-zap_color(ground, 0.3, 0.7, 0.3)
+print("ECS world ready with", ECS.entity_count(world), "entities")
 
-zap_on_update(fn(dt):
-  if zap_key("w"): zap_move(player, 0, 0, -5 * dt)
-  if zap_key("s"): zap_move(player, 0, 0, 5 * dt)
-  if zap_key("a"): zap_move(player, -5 * dt, 0, 0)
-  if zap_key("d"): zap_move(player, 5 * dt, 0, 0)
-  let pos = zap_pos(player)
-  zap_camera(pos[0], pos[1] + 5, pos[2] + 10)
-end)
+fn update(dt):
+  for e in ECS.list_entities(world):
+    print("Entity:", ECS.get_name(e))
 
-zap_run()
+ECS.run_systems(world, 0.016)
 `;
 
   fs.writeFileSync(path.join(projectPath, 'main.zpx'), mainContent);
@@ -274,31 +332,21 @@ async function aiGenerateCode(prompt) {
   const lower = prompt.toLowerCase();
   
   if (lower.includes('platformer')) {
-    return `import "zap.zpx"
+    return `import "lib/ecs.zpx"
 
-zap("Platformer", 1280, 720)
+world = ECS.World()
 
-player = zap_cube(0, 2, 0)
-zap_color(player, 0.2, 0.6, 1.0)
+player = ECS.create_entity(world, "player")
+ground = ECS.create_entity(world, "ground")
 
-ground = zap_plane(0, 0, 0)
-zap_scale_to(ground, 30, 1, 1)
-zap_color(ground, 0.3, 0.7, 0.3)
+fn movement(dt):
+  for e in ECS.query(world, ["Transform"]):
+    t = ECS.get_component(world, e, "Transform")
+    if ECS.get_name(e) == "player":
+      t.fields["x"] += 5 * dt
 
-for i in range(8):
-  p = zap_cube(-12 + i * 3.5, 2 + (i % 3) * 2, 0)
-  zap_color(p, 0.5, 0.5, 0.5)
-
-zap_on_update(fn(dt):
-  if zap_key("a"): zap_move(player, -6 * dt, 0, 0)
-  if zap_key("d"): zap_move(player, 6 * dt, 0, 0)
-  if zap_key("space"): zap_move(player, 0, 10 * dt, 0)
-  zap_move(player, 0, -20 * dt, 0)
-  let pos = zap_pos(player)
-  zap_camera(pos[0], pos[1] + 3, 10)
-end)
-
-zap_run()`;
+ECS.register_system(world, "Movement", ["Transform"], movement)
+`;
   }
 
   if (lower.includes('fps') || lower.includes('shooter')) {

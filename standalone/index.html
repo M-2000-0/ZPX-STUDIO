@@ -193,6 +193,33 @@
     ::-webkit-scrollbar-thumb:hover { background: var(--text2); }
     ::selection { background: var(--accent); color: var(--bg); }
 
+    /* Command palette overlay */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: flex-start; justify-content: center; padding-top: 80px; }
+    .overlay.show { display: flex; }
+    .overlay-box { width: 520px; max-height: 360px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column; }
+    .overlay-input { width: 100%; padding: 10px 14px; background: var(--surface); border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; outline: none; font-family: inherit; }
+    .overlay-input::placeholder { color: var(--text3); }
+    .overlay-list { flex: 1; overflow-y: auto; padding: 4px; }
+    .overlay-item { padding: 6px 10px; cursor: pointer; border-radius: 4px; font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 8px; transition: background 0.08s; }
+    .overlay-item:hover, .overlay-item.highlight { background: var(--glass); color: var(--text); }
+    .overlay-item .oi-icon { width: 16px; text-align: center; font-size: 11px; }
+    .overlay-item .oi-label { flex: 1; }
+    .overlay-item .oi-shortcut { font-size: 9px; color: var(--text3); font-family: monospace; }
+    .overlay-footer { padding: 5px 10px; border-top: 1px solid var(--border); font-size: 9px; color: var(--text3); display: flex; gap: 12px; }
+
+    /* AI Chat panel */
+    .ai-chat { display: flex; flex-direction: column; height: 100%; }
+    .ai-msgs { flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+    .ai-msg { padding: 6px 8px; border-radius: 6px; font-size: 10px; line-height: 1.4; max-width: 90%; }
+    .ai-msg.user { background: var(--surface3); color: var(--text); align-self: flex-end; }
+    .ai-msg.assistant { background: var(--glass); border: 1px solid var(--glass-border); color: var(--text); align-self: flex-start; }
+    .ai-msg .code { background: var(--surface); border-radius: 3px; padding: 4px 6px; font-family: monospace; font-size: 9px; margin: 3px 0; white-space: pre-wrap; }
+    .ai-input-row { display: flex; gap: 4px; padding: 6px; border-top: 1px solid var(--border); }
+    .ai-input-row input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 5px 8px; color: var(--text); font-size: 10px; outline: none; }
+    .ai-input-row input:focus { border-color: var(--accent); }
+    .ai-input-row button { background: var(--accent); color: var(--bg); border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer; font-size: 10px; font-weight: 600; }
+    .ai-input-row button:hover { opacity: 0.9; }
+
     .context-menu { position: fixed; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); padding: 4px; z-index: 1000; min-width: 140px; display: none; }
     .context-menu.show { display: block; }
     .ctx-item { padding: 4px 8px; font-size: 10px; color: var(--text2); cursor: pointer; border-radius: 3px; display: flex; justify-content: space-between; }
@@ -368,10 +395,14 @@ zap_run()
       <div class="right-panel-content" id="rp-inspector">
         <div id="inspector-content"></div>
         <button class="add-comp" onclick="addComponent()">+ Add Component</button>
-        <div class="ai-box">
-          <h4>✦ AI Assistant</h4>
-          <textarea class="ai-ta" id="ai-input" placeholder="Describe your game..."></textarea>
-          <button class="ai-btn" onclick="aiGenerate()">Generate</button>
+        <div class="ai-chat" id="ai-chat">
+          <div class="ai-msgs" id="ai-msgs">
+            <div class="ai-msg assistant">Hi! Describe what you want to build. I can generate code, fix errors, and suggest improvements.</div>
+          </div>
+          <div class="ai-input-row">
+            <input id="ai-input" placeholder="Ask AI..." onkeydown="if(event.key==='Enter')aiChat()">
+            <button onclick="aiChat()">Send</button>
+          </div>
         </div>
       </div>
       <div class="right-panel-content" id="rp-project" style="display:none">
@@ -437,6 +468,24 @@ zap_run()
     <div class="status-right"><span id="status-cursor">Ln 1, Col 1</span><span>UTF-8</span></div>
   </div>
 
+  <!-- Command Palette Overlay -->
+  <div class="overlay" id="cmd-palette" onclick="if(event.target===this)closeOverlay()">
+    <div class="overlay-box">
+      <input class="overlay-input" id="cmd-input" placeholder="Type a command..." oninput="filterCmds()" onkeydown="cmdKeydown(event)">
+      <div class="overlay-list" id="cmd-list"></div>
+      <div class="overlay-footer"><span>↵ select</span><span>esc close</span></div>
+    </div>
+  </div>
+
+  <!-- Quick Search Overlay -->
+  <div class="overlay" id="quick-search" onclick="if(event.target===this)closeOverlay()">
+    <div class="overlay-box">
+      <input class="overlay-input" id="qs-input" placeholder="Search files, entities, components..." oninput="filterQs()" onkeydown="qsKeydown(event)">
+      <div class="overlay-list" id="qs-list"></div>
+      <div class="overlay-footer"><span>↵ open</span><span>esc close</span></div>
+    </div>
+  </div>
+
   <!-- Context Menu -->
   <div class="context-menu" id="ctx-menu">
     <div class="ctx-item" onclick="ctxAction('rename')">Rename <span style="color:var(--text3)">F2</span></div>
@@ -457,6 +506,167 @@ zap_run()
 
     function log(msg) { const d = document.createElement('div'); d.textContent = msg; out.appendChild(d); out.scrollTop = out.scrollHeight; }
     function setTheme(t) { document.documentElement.setAttribute('data-theme', t); }
+
+    // === Command Palette ===
+    const commands = [
+      { id: 'run', icon: '▶', label: 'Run Game', shortcut: 'Ctrl+R', action: () => runGame() },
+      { id: 'stop', icon: '■', label: 'Stop Game', shortcut: '', action: () => stopGame() },
+      { id: 'export', icon: '📦', label: 'Export Project', shortcut: '', action: () => exportGame() },
+      { id: 'toggle-wire', icon: '◇', label: 'Toggle Wireframe', shortcut: '', action: () => toggleWire() },
+      { id: 'toggle-grid', icon: '⊞', label: 'Toggle Grid', shortcut: '', action: () => toggleGrid() },
+      { id: 'toggle-shadow', icon: '●', label: 'Toggle Shadows', shortcut: '', action: () => toggleShadows() },
+      { id: 'translate', icon: '↔', label: 'Translate Gizmo (W)', shortcut: 'W', action: () => { const e = document.querySelectorAll('.gz')[0]; if(e) setGizmo('translate', e); } },
+      { id: 'rotate', icon: '↻', label: 'Rotate Gizmo (E)', shortcut: 'E', action: () => { const e = document.querySelectorAll('.gz')[1]; if(e) setGizmo('rotate', e); } },
+      { id: 'scale', icon: '⤡', label: 'Scale Gizmo (R)', shortcut: 'R', action: () => { const e = document.querySelectorAll('.gz')[2]; if(e) setGizmo('scale', e); } },
+      { id: 'cam-persp', icon: '◈', label: 'Camera: Perspective', shortcut: '', action: () => { const e = document.querySelectorAll('.cam')[0]; if(e) setCam('persp', e); } },
+      { id: 'cam-top', icon: '◈', label: 'Camera: Top', shortcut: '', action: () => { const e = document.querySelectorAll('.cam')[1]; if(e) setCam('top', e); } },
+      { id: 'cam-front', icon: '◈', label: 'Camera: Front', shortcut: '', action: () => { const e = document.querySelectorAll('.cam')[2]; if(e) setCam('front', e); } },
+      { id: 'cam-side', icon: '◈', label: 'Camera: Side', shortcut: '', action: () => { const e = document.querySelectorAll('.cam')[3]; if(e) setCam('side', e); } },
+      { id: 'toggle-snap', icon: '⊞', label: 'Toggle Snap', shortcut: '', action: () => toggleSnap() },
+      { id: 'ai-gen', icon: '✦', label: 'AI Generate Code', shortcut: '', action: () => aiGenerate() },
+      { id: 'ai-chat', icon: '✦', label: 'Focus AI Chat', shortcut: '', action: () => { document.getElementById('ai-input').focus(); } },
+      { id: 'theme-black', icon: '●', label: 'Theme: Black', shortcut: '', action: () => setTheme('black') },
+      { id: 'theme-white', icon: '○', label: 'Theme: White', shortcut: '', action: () => setTheme('white') },
+      { id: 'theme-glass', icon: '◇', label: 'Theme: Liquid Glass', shortcut: '', action: () => setTheme('glass') },
+    ];
+    let cmdHighlight = 0;
+    function openCmdPalette() {
+      document.getElementById('cmd-input').value = '';
+      filterCmds();
+      document.getElementById('cmd-palette').classList.add('show');
+      document.getElementById('cmd-input').focus();
+      cmdHighlight = 0;
+    }
+    function closeOverlay() {
+      document.getElementById('cmd-palette').classList.remove('show');
+      document.getElementById('quick-search').classList.remove('show');
+    }
+    function filterCmds() {
+      const q = document.getElementById('cmd-input').value.toLowerCase();
+      const list = document.getElementById('cmd-list');
+      const filtered = commands.filter(c => c.label.toLowerCase().includes(q) || c.id.includes(q));
+      cmdHighlight = 0;
+      list.innerHTML = filtered.map((c, i) =>
+        `<div class="overlay-item${i===0?' highlight':''}" onclick="execCmd(${commands.indexOf(c)})"><span class="oi-icon">${c.icon}</span><span class="oi-label">${c.label}</span><span class="oi-shortcut">${c.shortcut}</span></div>`
+      ).join('');
+    }
+    function cmdKeydown(e) {
+      const list = document.getElementById('cmd-list');
+      const items = list.querySelectorAll('.overlay-item');
+      if (e.key === 'ArrowDown') { e.preventDefault(); cmdHighlight = Math.min(cmdHighlight + 1, items.length - 1); updateCmdHL(items); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); cmdHighlight = Math.max(cmdHighlight - 1, 0); updateCmdHL(items); }
+      else if (e.key === 'Enter') { const idx = Array.from(items).findIndex(el => el.classList.contains('highlight')); if (idx >= 0) items[idx].click(); }
+      else if (e.key === 'Escape') closeOverlay();
+    }
+    function updateCmdHL(items) { items.forEach((el, i) => el.classList.toggle('highlight', i === cmdHighlight)); }
+    function execCmd(idx) { closeOverlay(); commands[idx].action(); }
+
+    // === Quick Search ===
+    const searchItems = [
+      { icon: '📄', label: 'main.zpx', type: 'file' },
+      { icon: '📄', label: 'project.json', type: 'file' },
+      { icon: '📄', label: 'scenes/level1.zpx', type: 'file' },
+      { icon: '📄', label: 'scripts/player.zpx', type: 'file' },
+      { icon: '📄', label: 'scripts/enemy.zpx', type: 'file' },
+      { icon: '✦', label: 'Player (Entity)', type: 'entity' },
+      { icon: '✦', label: 'Enemy (Entity)', type: 'entity' },
+      { icon: '■', label: 'Transform (Component)', type: 'component' },
+      { icon: '■', label: 'Rigidbody (Component)', type: 'component' },
+      { icon: '■', label: 'MeshRenderer (Component)', type: 'component' },
+      { icon: '■', label: 'PlayerController (Component)', type: 'component' },
+      { icon: '⚙', label: 'Movement (System)', type: 'system' },
+      { icon: '⚙', label: 'Physics (System)', type: 'system' },
+      { icon: '◈', label: 'Level1 (Scene)', type: 'scene' },
+    ];
+    let qsHighlight = 0;
+    function openQuickSearch() {
+      document.getElementById('qs-input').value = '';
+      filterQs();
+      document.getElementById('quick-search').classList.add('show');
+      document.getElementById('qs-input').focus();
+      qsHighlight = 0;
+    }
+    function filterQs() {
+      const q = document.getElementById('qs-input').value.toLowerCase();
+      const list = document.getElementById('qs-list');
+      const filtered = searchItems.filter(s => s.label.toLowerCase().includes(q));
+      qsHighlight = 0;
+      list.innerHTML = filtered.map((s, i) =>
+        `<div class="overlay-item${i===0?' highlight':''}" onclick="qsSelect(${searchItems.indexOf(s)})"><span class="oi-icon">${s.icon}</span><span class="oi-label">${s.label}</span><span class="oi-shortcut" style="color:var(--text3)">${s.type}</span></div>`
+      ).join('');
+    }
+    function qsKeydown(e) {
+      const list = document.getElementById('qs-list');
+      const items = list.querySelectorAll('.overlay-item');
+      if (e.key === 'ArrowDown') { e.preventDefault(); qsHighlight = Math.min(qsHighlight + 1, items.length - 1); updateQsHL(items); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); qsHighlight = Math.max(qsHighlight - 1, 0); updateQsHL(items); }
+      else if (e.key === 'Enter') { const idx = Array.from(items).findIndex(el => el.classList.contains('highlight')); if (idx >= 0) items[idx].click(); }
+      else if (e.key === 'Escape') closeOverlay();
+    }
+    function updateQsHL(items) { items.forEach((el, i) => el.classList.toggle('highlight', i === qsHighlight)); }
+    function qsSelect(idx) { closeOverlay(); log('Opened: ' + searchItems[idx].label); }
+
+    // === AI Chat ===
+    const aiHistory = [];
+    function aiChat() {
+      const input = document.getElementById('ai-input');
+      const msg = input.value.trim();
+      if (!msg) return;
+      input.value = '';
+      addAIMsg(msg, 'user');
+      aiHistory.push({role:'user',content:msg});
+      if (msg.toLowerCase().includes('platformer') || msg.toLowerCase().includes('player')) {
+        setTimeout(() => {
+          const reply = 'Here is a simple player controller:\n\n' +
+            '```zpx\nfn player_update(dt):\n  if key("a"): move(-5 * dt, 0, 0)\n  if key("d"): move(5 * dt, 0, 0)\n  if key("space"): jump(8)\n```\n\n' +
+            'Add this to your game script. Make sure to call it each frame.';
+          addAIMsg(reply, 'assistant');
+          aiHistory.push({role:'assistant',content:reply});
+        }, 300);
+      } else if (msg.toLowerCase().includes('error') || msg.toLowerCase().includes('bug')) {
+        setTimeout(() => {
+          const reply = 'Let me check your code for issues...\n\n1. Check that all variables are defined\n2. Verify import paths\n3. Make sure function signatures match\n4. Look for missing `end` keywords\n\nCan you share the error message?';
+          addAIMsg(reply, 'assistant');
+          aiHistory.push({role:'assistant',content:reply});
+        }, 300);
+      } else {
+        setTimeout(() => {
+          const reply = 'Great question! Here are some suggestions:\n\n- Check the ZPX documentation for built-in functions\n- Use `ECS.World()` to create an ECS world\n- Entities can have components via `ECS.add_component()`\n- Systems query entities with `ECS.query()`\n\nWant me to generate specific code for your use case?';
+          addAIMsg(reply, 'assistant');
+          aiHistory.push({role:'assistant',content:reply});
+        }, 300);
+      }
+    }
+    function addAIMsg(text, role) {
+      const msgs = document.getElementById('ai-msgs');
+      const div = document.createElement('div');
+      div.className = 'ai-msg ' + role;
+      div.innerHTML = text.replace(/```(\w*)\n?([\s\S]*?)```/g, '<div class="code">$2</div>').replace(/\n/g, '<br>');
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    // === AI Generate (Legacy) ===
+    function aiGenerate() {
+      const input = document.getElementById('ai-input');
+      const msg = input.value.trim() || 'Create a game prototype';
+      addAIMsg(msg, 'user');
+      setTimeout(() => {
+        addAIMsg('Generating code based on your description...\n\n```zpx\nimport "lib/ecs.zpx"\n\nworld = ECS.World()\nplayer = ECS.create_entity(world, "player")```', 'assistant');
+      }, 200);
+    }
+    function runGame() { log('Game started'); document.querySelector('.status-left').innerHTML = '<span>Running...</span><span>ZPX</span>'; }
+    function stopGame() { log('Game stopped'); document.querySelector('.status-left').innerHTML = '<span>Ready</span><span>ZPX</span>'; }
+    function exportGame() { log('Export started'); }
+
+    // === Keyboard shortcuts ===
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.shiftKey && e.key === 'P') { e.preventDefault(); openCmdPalette(); }
+      else if (e.ctrlKey && e.key === 'p') { e.preventDefault(); openQuickSearch(); }
+      else if (e.ctrlKey && e.key === 'Enter' && document.activeElement !== document.getElementById('ai-input')) { document.getElementById('ai-input').focus(); e.preventDefault(); }
+      else if (e.key === 'F5') { e.preventDefault(); runGame(); }
+      else if (e.key === 'Escape' && (document.getElementById('cmd-palette').classList.contains('show') || document.getElementById('quick-search').classList.contains('show'))) { closeOverlay(); }
+    });
 
     function switchLeftTab(el, tab) {
       document.querySelectorAll('.left-tab').forEach(t => t.classList.remove('active'));
