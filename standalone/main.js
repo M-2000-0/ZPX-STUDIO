@@ -695,12 +695,12 @@ zap_run()`;
 
 function getTemplates() {
   return [
-    { id: 'platformer', name: '2D Platformer', icon: '🏃' },
-    { id: 'fps', name: '3D FPS', icon: '🔫' },
-    { id: 'topdown', name: 'Top-Down Shooter', icon: '🎯' },
-    { id: 'racing', name: 'Racing', icon: '🏎️' },
-    { id: 'puzzle', name: 'Puzzle', icon: '🧩' },
-    { id: 'rpg', name: 'RPG', icon: '⚔️' }
+    { id: 'platformer', name: '2D Platformer', icon: 'run' },
+    { id: 'fps', name: '3D FPS', icon: 'aim' },
+    { id: 'topdown', name: 'Top-Down Shooter', icon: 'target' },
+    { id: 'racing', name: 'Racing', icon: 'speed' },
+    { id: 'puzzle', name: 'Puzzle', icon: 'puzzle' },
+    { id: 'rpg', name: 'RPG', icon: 'sword' }
   ];
 }
 
