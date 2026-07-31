@@ -55,73 +55,126 @@
 
     /* Left sidebar */
     .left-sidebar { width: 260px; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-    .left-tabs { display: flex; border-bottom: 1px solid var(--border); }
-    .left-tab { flex: 1; padding: 5px; text-align: center; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); cursor: pointer; transition: all 0.15s; }
-    .left-tab:hover { color: var(--text); }
-    .left-tab.active { color: var(--text); border-bottom: 2px solid var(--accent); }
+    .left-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--glass); }
+    .left-tab { position: relative; flex: 1; padding: 6px; text-align: center; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); cursor: pointer; transition: all 0.12s; }
+    .left-tab::before { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--accent); opacity: 0; transition: opacity 0.15s; }
+    .left-tab:hover { color: var(--text); background: var(--surface2); }
+    .left-tab:hover::before { opacity: 1; }
+    .left-tab.active { color: var(--text); }
+    .left-tab.active::before { opacity: 1; }
     .left-panel { display: none; flex: 1; overflow-y: auto; padding: 4px; }
     .left-panel.active { display: block; }
 
     .file-tree { list-style: none; }
-    .file-tree li { padding: 3px 6px; cursor: pointer; border-radius: 3px; margin-bottom: 1px; font-size: 11px; color: var(--text2); transition: all 0.12s; display: flex; align-items: center; gap: 4px; }
+    .file-tree li { padding: 4px 8px; cursor: pointer; border-radius: 4px; margin-bottom: 1px; font-size: 11px; color: var(--text2); transition: all 0.12s; display: flex; align-items: center; gap: 4px; }
     .file-tree li:hover { background: var(--glass); color: var(--text); }
     .file-tree li.active { background: var(--accent); color: var(--bg); }
     .file-tree .indent { padding-left: 16px; }
-    .file-tree .icon { width: 12px; text-align: center; font-size: 9px; }
+    .file-tree .icon { width: 14px; display: flex; align-items: center; justify-content: center; }
+
+    /* Premium button styles */
+    .btn { position: relative; overflow: hidden; }
+    .btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent); opacity: 0; transition: opacity 0.15s; }
+    .btn:hover::before { opacity: 1; }
+    .btn:active::before { opacity: 0; background: linear-gradient(180deg, rgba(0,0,0,0.15), transparent); }
+    .btn.run { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .btn.run::before { background: linear-gradient(180deg, rgba(255,255,255,0.2), transparent); }
+    .btn.stop { background: var(--text); color: var(--bg); }
+    .btn.stop::before { background: linear-gradient(180deg, rgba(255,255,255,0.15), transparent); }
+    .btn.ai { border: 1px solid var(--accent); }
+    .btn.ai:hover { background: var(--accent); color: var(--bg); }
+
+    /* Premium panel headers */
+    .ecs-hdr { position: relative; }
+    .ecs-hdr::before { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, var(--accent), transparent); opacity: 0; transition: opacity 0.2s; }
+    .ecs-hdr:hover::before { opacity: 1; }
+
+    /* Status bar premium */
+    .status-bar { background: linear-gradient(90deg, var(--accent), var(--accent)); }
+
+    /* Gizmo buttons premium */
+    .gz { position: relative; }
+    .gz::after { content: ''; position: absolute; inset: 0; border-radius: 3px; box-shadow: 0 0 0 1px var(--glass-border); opacity: 0; transition: opacity 0.15s; }
+    .gz:hover::after { opacity: 1; }
+    .gz.active::after { opacity: 1; box-shadow: 0 0 0 2px var(--accent); }
+
+    /* Tab premium underline */
+    .left-tab.active::after, .right-tab.active::after, .viewport-tab.active::after, .panel-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--accent); }
+
+    /* Input focus premium */
+    .pi:focus, .ps:focus, .ai-ta:focus, .ai-input-row input:focus { box-shadow: 0 0 0 2px var(--accent); }
+
+    /* Premium scrollbar */
+    ::-webkit-scrollbar-thumb { border-radius: 2px; background: linear-gradient(180deg, var(--border), var(--text3)); }
+    ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, var(--text3), var(--text2)); }
+
+    /* Command palette premium */
+    .overlay-box { border-radius: 10px; }
+    .overlay-input { background: var(--surface2); }
+    .overlay-item.highlight { background: var(--glass); }
+    .overlay-item.highlight .oi-icon { opacity: 1; }
 
     .h-item { display: flex; align-items: center; gap: 4px; padding: 3px 6px; cursor: pointer; border-radius: 3px; margin-bottom: 1px; font-size: 11px; color: var(--text2); transition: all 0.12s; user-select: none; }
     .h-item:hover { background: var(--glass); color: var(--text); }
     .h-item.selected { background: var(--accent); color: var(--bg); }
-    .h-item .arrow { width: 10px; font-size: 7px; color: var(--text3); text-align: center; }
+    .h-item .arrow { width: 10px; display: flex; align-items: center; justify-content: center; color: var(--text3); transition: transform 0.15s; }
     .h-item .arrow.open { transform: rotate(90deg); }
-    .h-item .ico { width: 14px; text-align: center; font-size: 10px; }
+    .h-item .ico { width: 14px; display: flex; align-items: center; justify-content: center; }
     .h-item.child { padding-left: 24px; }
     .h-item.child2 { padding-left: 40px; }
-    .h-item .add-btn { margin-left: auto; opacity: 0; font-size: 10px; color: var(--text3); }
+    .h-item .add-btn { margin-left: auto; opacity: 0; display: flex; color: var(--text3); }
     .h-item:hover .add-btn { opacity: 1; }
-    .h-item .vis { width: 14px; text-align: center; font-size: 9px; opacity: 0.5; }
+    .h-item .vis { width: 14px; display: flex; align-items: center; justify-content: center; opacity: 0.5; cursor: pointer; }
     .h-item .vis:hover { opacity: 1; }
 
     /* ECS Browser */
     .ecs-browser { padding: 2px; }
     .ecs-section { margin-bottom: 2px; }
-    .ecs-hdr { display: flex; align-items: center; gap: 4px; padding: 4px 6px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text2); cursor: pointer; border-radius: 3px; user-select: none; }
-    .ecs-hdr:hover { background: var(--glass); }
-    .ecs-arr { font-size: 7px; transition: transform 0.15s; color: var(--text3); }
+    .ecs-hdr { position: relative; display: flex; align-items: center; gap: 4px; padding: 6px 8px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text2); cursor: pointer; border-radius: 4px; user-select: none; transition: all 0.12s; overflow: hidden; }
+    .ecs-hdr::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--accent); opacity: 0; transition: opacity 0.15s; }
+    .ecs-hdr:hover { background: var(--glass); color: var(--text); }
+    .ecs-hdr:hover::before { opacity: 1; }
+    .ecs-hdr.open::before { opacity: 1; }
+    .ecs-arr { transition: transform 0.15s; color: var(--text3); flex-shrink: 0; }
     .ecs-hdr.open .ecs-arr { transform: rotate(90deg); }
     .ecs-cnt { margin-left: auto; font-size: 9px; color: var(--text3); font-weight: 400; }
-    .ecs-body { display: none; padding: 1px 0 2px 16px; }
+    .ecs-body { display: none; padding: 2px 0 3px 18px; }
     .ecs-hdr.open + .ecs-body { display: block; }
-    .ecs-item { display: flex; align-items: center; gap: 4px; padding: 2px 6px; font-size: 10px; color: var(--text2); cursor: pointer; border-radius: 2px; transition: all 0.1s; }
+    .ecs-item { display: flex; align-items: center; gap: 4px; padding: 3px 8px; font-size: 10px; color: var(--text2); cursor: pointer; border-radius: 3px; transition: all 0.1s; }
     .ecs-item:hover { background: var(--glass); color: var(--text); }
-    .ecs-item .ecs-ico { width: 12px; text-align: center; font-size: 9px; }
+    .ecs-item .ecs-ico { width: 14px; display: flex; align-items: center; justify-content: center; }
     .ecs-item .ecs-sub { font-size: 8px; color: var(--text3); margin-left: auto; }
     .ecs-item .ecs-file { font-size: 8px; color: var(--text3); margin-left: 4px; }
 
     .center { flex: 1; display: flex; flex-direction: column; }
 
     /* Toolbar */
-    .toolbar { display: flex; gap: 3px; padding: 4px 6px; border-bottom: 1px solid var(--border); align-items: center; flex-wrap: wrap; }
-    .btn { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 3px 8px; border-radius: var(--r); cursor: pointer; color: var(--text); font-size: 10px; transition: all 0.12s; white-space: nowrap; }
+    .toolbar { display: flex; gap: 3px; padding: 5px 8px; border-bottom: 1px solid var(--border); align-items: center; flex-wrap: wrap; background: linear-gradient(180deg, var(--glass), transparent); }
+    .btn { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 4px 10px; border-radius: var(--r); cursor: pointer; color: var(--text); font-size: 10px; transition: all 0.12s; white-space: nowrap; position: relative; overflow: hidden; }
     .btn:hover { background: var(--surface2); }
     .btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
-    .btn.run { background: var(--accent); color: var(--bg); border-color: var(--accent); }
-    .btn.stop { background: var(--text); color: var(--bg); }
-    .btn.ai { border: 1px solid var(--accent); }
-    .sep { width: 1px; height: 16px; background: var(--border); flex-shrink: 0; }
-    .gizmo-btns { display: flex; gap: 1px; }
-    .gz { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 3px; font-size: 9px; font-weight: 700; background: var(--glass); border: 1px solid var(--glass-border); cursor: pointer; color: var(--text2); transition: all 0.12s; }
+    .btn.run { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+    .btn.stop { background: var(--text); color: var(--bg); font-weight: 600; }
+    .btn.ai { border: 1px solid var(--accent); background: var(--glass); }
+    .btn.ai:hover { background: var(--accent); color: var(--bg); }
+    .sep { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; margin: 0 2px; }
+    .gizmo-btns { display: flex; gap: 2px; }
+    .gz { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 9px; font-weight: 700; background: var(--glass); border: 1px solid var(--glass-border); cursor: pointer; color: var(--text2); transition: all 0.12s; position: relative; }
     .gz:hover { color: var(--text); background: var(--surface2); }
     .gz.active { background: var(--accent); color: var(--bg); }
-    .cam-btns { display: flex; gap: 1px; }
-    .cam { padding: 3px 6px; font-size: 9px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 3px; cursor: pointer; color: var(--text2); }
-    .cam:hover { color: var(--text); }
+    .gz.active::after { opacity: 1; box-shadow: 0 0 0 2px var(--accent); }
+    .cam-btns { display: flex; gap: 2px; }
+    .cam { padding: 3px 8px; font-size: 9px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 3px; cursor: pointer; color: var(--text2); transition: all 0.12s; }
+    .cam:hover { color: var(--text); background: var(--surface2); }
     .cam.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 
-    .viewport-tabs { display: flex; border-bottom: 1px solid var(--border); }
-    .viewport-tab { padding: 4px 10px; cursor: pointer; font-size: 10px; color: var(--text2); border-right: 1px solid var(--border); transition: all 0.12s; }
-    .viewport-tab:hover { color: var(--text); background: var(--glass); }
-    .viewport-tab.active { color: var(--text); border-bottom: 2px solid var(--accent); }
+    .viewport-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--glass); }
+    .viewport-tab { position: relative; padding: 6px 14px; cursor: pointer; font-size: 10px; color: var(--text2); border-right: 1px solid var(--border); transition: all 0.12s; }
+    .viewport-tab::before { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--accent); opacity: 0; transition: opacity 0.15s; }
+    .viewport-tab:hover { color: var(--text); background: var(--surface2); }
+    .viewport-tab.active { color: var(--text); }
+    .viewport-tab.active::before { opacity: 1; }
+    .viewport-tab:last-child { border-right: none; }
 
     .viewport-area { flex: 1; position: relative; overflow: hidden; }
     .viewport-panel { position: absolute; inset: 0; display: none; }
@@ -141,7 +194,7 @@
     .asset-item { aspect-ratio: 1; background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; }
     .asset-item:hover { transform: translateY(-1px); box-shadow: var(--glass-shadow); border-color: var(--accent); }
     .asset-item.selected { border-color: var(--accent); background: var(--surface2); }
-    .asset-item .aicon { font-size: 18px; margin-bottom: 2px; }
+    .asset-item .aicon { display: flex; align-items: center; justify-content: center; height: 24px; margin-bottom: 2px; }
     .asset-item .aname { font-size: 8px; color: var(--text2); text-align: center; word-break: break-all; line-height: 1.2; }
 
     .timeline-panel { flex: 1; display: flex; flex-direction: column; }
@@ -151,25 +204,29 @@
     #timeline-canvas { height: 100%; }
 
     .editor-area { flex: 1; display: flex; flex-direction: column; }
-    .editor-tabs { display: flex; border-bottom: 1px solid var(--border); height: 26px; }
-    .editor-tab { padding: 4px 10px; cursor: pointer; font-size: 10px; color: var(--text2); border-right: 1px solid var(--border); }
-    .editor-tab:hover { color: var(--text); }
-    .editor-tab.active { color: var(--text); border-bottom: 2px solid var(--accent); }
+    .editor-tabs { display: flex; border-bottom: 1px solid var(--border); height: 28px; background: var(--glass); }
+    .editor-tab { position: relative; padding: 5px 12px; cursor: pointer; font-size: 10px; color: var(--text2); border-right: 1px solid var(--border); display: flex; align-items: center; gap: 4px; }
+    .editor-tab::before { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--accent); opacity: 0; transition: opacity 0.15s; }
+    .editor-tab:hover { color: var(--text); background: var(--surface2); }
+    .editor-tab.active { color: var(--text); }
+    .editor-tab.active::before { opacity: 1; }
     .editor-content { flex: 1; }
     #code-editor { width: 100%; height: 100%; background: var(--surface); color: var(--text); border: none; padding: 8px; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 12px; line-height: 1.6; resize: none; outline: none; tab-size: 2; }
 
     /* Right panel */
     .right-panel { width: 300px; border-left: 1px solid var(--border); display: flex; flex-direction: column; }
-    .right-tabs { display: flex; border-bottom: 1px solid var(--border); }
-    .right-tab { flex: 1; padding: 5px; text-align: center; font-size: 9px; text-transform: uppercase; color: var(--text2); cursor: pointer; }
-    .right-tab:hover { color: var(--text); }
-    .right-tab.active { color: var(--text); border-bottom: 2px solid var(--accent); }
+    .right-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--glass); }
+    .right-tab { position: relative; flex: 1; padding: 5px; text-align: center; font-size: 9px; text-transform: uppercase; color: var(--text2); cursor: pointer; transition: all 0.12s; }
+    .right-tab::before { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--accent); opacity: 0; transition: opacity 0.15s; }
+    .right-tab:hover { color: var(--text); background: var(--surface2); }
+    .right-tab.active { color: var(--text); }
+    .right-tab.active::before { opacity: 1; }
     .right-panel-content { flex: 1; padding: 6px; overflow-y: auto; }
 
     .insp { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: var(--r); margin-bottom: 6px; overflow: hidden; }
     .insp-h { padding: 5px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.12s; }
     .insp-h:hover { background: var(--surface2); }
-    .insp-h .arr { font-size: 7px; transition: transform 0.2s; }
+    .insp-h .arr { transition: transform 0.2s; flex-shrink: 0; }
     .insp-h.open .arr { transform: rotate(90deg); }
     .insp-b { padding: 6px 8px; }
     .insp-b.closed { display: none; }
@@ -194,21 +251,47 @@
     .ai-btn:hover { opacity: 0.9; }
 
     .bottom-panel { height: 140px; border-top: 1px solid var(--border); display: flex; flex-direction: column; }
-    .panel-tabs { display: flex; border-bottom: 1px solid var(--border); }
-    .panel-tab { padding: 3px 10px; cursor: pointer; font-size: 9px; color: var(--text2); }
-    .panel-tab:hover { color: var(--text); }
-    .panel-tab.active { color: var(--text); border-bottom: 2px solid var(--accent); }
+    .panel-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--glass); }
+    .panel-tab { position: relative; padding: 4px 12px; cursor: pointer; font-size: 9px; color: var(--text2); }
+    .panel-tab::before { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--accent); opacity: 0; transition: opacity 0.15s; }
+    .panel-tab:hover { color: var(--text); background: var(--surface2); }
+    .panel-tab.active { color: var(--text); }
+    .panel-tab.active::before { opacity: 1; }
     .panel-content { flex: 1; padding: 4px 8px; overflow-y: auto; font-family: 'Cascadia Code', monospace; font-size: 10px; }
 
-    .status-bar { height: 18px; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-size: 9px; }
+    .status-bar { height: 20px; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 9px; font-weight: 500; }
     .status-left, .status-right { display: flex; gap: 10px; }
 
     .help-item { padding: 2px 0; font-size: 10px; color: var(--text2); }
     .help-item b { color: var(--text); }
+    /* Icons */
+    .icon { display: inline-block; vertical-align: middle; flex-shrink: 0; transition: opacity .15s; }
+    .icon-sm { width: 12px; height: 12px; }
+    .icon-lg { width: 18px; height: 18px; }
+    .icon-mr { margin-right: 4px; }
+    .icon-wrap { display: inline-flex; align-items: center; gap: 4px; }
+
+    /* Premium treatments */
+    .glow { box-shadow: 0 0 20px rgba(255,255,255,0.06); }
+    .glow-accent { box-shadow: 0 0 20px rgba(255,255,255,0.12); }
+    .inset-shadow { box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
+    .gradient-bar { background: linear-gradient(90deg, var(--accent), transparent); height: 1px; }
+    .pill { border-radius: 100px; padding: 2px 8px; font-size: 9px; }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+    .badge-dot.on { background: #4caf50; box-shadow: 0 0 6px #4caf50; }
+    .badge-dot.off { background: var(--text3); }
+
+    /* Focus rings */
+    .pi:focus, .ps:focus, .ai-ta:focus, .ai-input-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); outline: none; }
+
+    /* Smooth transitions */
+    * { transition: color 0.15s, background 0.15s, border-color 0.15s, box-shadow 0.15s; }
+    .btn, .gz, .cam, .panel-tab, .viewport-tab, .editor-tab, .left-tab, .right-tab, .ecs-hdr { transition: all 0.12s ease-out; }
+
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--text2); }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--border), var(--text3)); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, var(--text3), var(--text2)); }
     ::selection { background: var(--accent); color: var(--bg); }
 
     /* Command palette overlay */
@@ -220,7 +303,7 @@
     .overlay-list { flex: 1; overflow-y: auto; padding: 4px; }
     .overlay-item { padding: 6px 10px; cursor: pointer; border-radius: 4px; font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 8px; transition: background 0.08s; }
     .overlay-item:hover, .overlay-item.highlight { background: var(--glass); color: var(--text); }
-    .overlay-item .oi-icon { width: 16px; text-align: center; font-size: 11px; }
+    .overlay-item .oi-icon { width: 16px; display: flex; align-items: center; justify-content: center; }
     .overlay-item .oi-label { flex: 1; }
     .overlay-item .oi-shortcut { font-size: 9px; color: var(--text3); font-family: monospace; }
     .overlay-footer { padding: 5px 10px; border-top: 1px solid var(--border); font-size: 9px; color: var(--text3); display: flex; gap: 12px; }
@@ -246,6 +329,47 @@
   </style>
 </head>
 <body>
+  <!-- SVG Icon Sprite -->
+  <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+    <symbol id="ic-file" viewBox="0 0 14 14"><path d="M8.5.5H3a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4L8.5.5z" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M8.5.5v3.5H12" fill="none" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-folder" viewBox="0 0 14 14"><path d="M.5 2.5a1 1 0 0 1 1-1h3.17a1 1 0 0 1 .7.3l.93.9h5.2a1 1 0 0 1 1 1v.5H4a1.5 1.5 0 0 0-1.5 1.5v5A1 1 0 0 1 .5 10V2.5z" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M2.5 5.5a1 1 0 0 1 1-1h8.5a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-8.5a1 1 0 0 1-1-1v-5z" fill="none" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-code" viewBox="0 0 14 14"><path d="M4.5 10l-3-3 3-3M9.5 4l3 3-3 3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-image" viewBox="0 0 14 14"><rect x=".5" y="1.5" width="13" height="11" rx="1" fill="none" stroke="currentColor" stroke-linejoin="round"/><circle cx="4.5" cy="5" r="1.5" fill="none" stroke="currentColor"/><path d="M.5 9.5l3-2 2 2 4-3 4 3v2a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-2z" fill="none" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-audio" viewBox="0 0 14 14"><path d="M6.5 1.5l-4 3h-2v5h2l4 3V1.5z" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M9.5 4.5a3.5 3.5 0 0 1 0 5M11.5 2.5a6.5 6.5 0 0 1 0 9" fill="none" stroke="currentColor" stroke-linecap="round"/></symbol>
+    <symbol id="ic-video" viewBox="0 0 14 14"><rect x=".5" y="2.5" width="9" height="9" rx="1" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M9.5 5.5l4-2v7l-4-2" fill="none" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-shader" viewBox="0 0 14 14"><path d="M2.5 1.5h9a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M4.5 4.5l2 5 2-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-entity" viewBox="0 0 14 14"><path d="M7 .5l5.5 3.5v6L7 13.5 1.5 10V4L7 .5z" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M7 7l5.5-3M7 7v6.5M7 7L1.5 4" fill="none" stroke="currentColor" stroke-linecap="round"/></symbol>
+    <symbol id="ic-component" viewBox="0 0 14 14"><rect x="1.5" y="1.5" width="11" height="11" rx="1" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M4.5 4.5h5v5h-5z" fill="none" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-system" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="currentColor"/><circle cx="7" cy="7" r="2" fill="none" stroke="currentColor"/><path d="M7 1v2.5M7 10.5V13M1 7h2.5M10.5 7H13" fill="none" stroke="currentColor" stroke-linecap="round"/></symbol>
+    <symbol id="ic-scene" viewBox="0 0 14 14"><path d="M.5 4.5l7-3 6 3-6 3-7-3z" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M.5 4.5v5l7 3 6-3v-5" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M7.5 1.5v11" fill="none" stroke="currentColor"/></symbol>
+    <symbol id="ic-play" viewBox="0 0 14 14"><path d="M3 1.5v11l9-5.5L3 1.5z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-stop" viewBox="0 0 14 14"><rect x="2" y="2" width="10" height="10" rx="1" fill="currentColor"/></symbol>
+    <symbol id="ic-export" viewBox="0 0 14 14"><path d="M7 .5v8M3.5 5L7 .5l3.5 4.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M.5 8.5v3a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-3" fill="none" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-wireframe" viewBox="0 0 14 14"><path d="M3 .5h8a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5H3A1.5 1.5 0 0 1 1.5 10V2A1.5 1.5 0 0 1 3 .5z" fill="none" stroke="currentColor"/><path d="M1.5 4.5h11M1.5 8.5h11" fill="none" stroke="currentColor" opacity=".5"/></symbol>
+    <symbol id="ic-grid" viewBox="0 0 14 14"><path d="M.5 2.5h13v9H.5z" fill="none" stroke="currentColor"/><path d="M.5 5.5h13M.5 8.5h13M4.5 2.5v9M9.5 2.5v9" fill="none" stroke="currentColor" opacity=".5"/></symbol>
+    <symbol id="ic-shadow" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor"/><path d="M7 2a5 5 0 0 1 0 10 5 5 0 0 1 0-10z" fill="currentColor" opacity=".15"/><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor"/></symbol>
+    <symbol id="ic-translate" viewBox="0 0 14 14"><path d="M7 .5v13M.5 7h13M7 3l-2.5 2.5h5L7 3zM7 11l2.5-2.5h-5L7 11zM3 7l2.5-2.5v5L3 7zM11 7l-2.5 2.5v-5L11 7z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-rotate" viewBox="0 0 14 14"><path d="M11.5 7a4.5 4.5 0 1 1-4-4.47" fill="none" stroke="currentColor" stroke-linecap="round"/><path d="M11.5 1.5v3.5H8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-scale" viewBox="0 0 14 14"><path d="M.5.5h5v5h-5zM8.5 8.5h5v5h-5z" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M5.5.5h3v3M8.5 5.5v3M.5 5.5h3M5.5 8.5h3v3" fill="none" stroke="currentColor" stroke-linecap="round"/></symbol>
+    <symbol id="ic-camera" viewBox="0 0 14 14"><path d="M.5 4a1 1 0 0 1 1-1h2l1.5-2h4L10.5 3h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1V4z" fill="none" stroke="currentColor" stroke-linejoin="round"/><circle cx="7" cy="7.5" r="2.5" fill="none" stroke="currentColor"/></symbol>
+    <symbol id="ic-snap" viewBox="0 0 14 14"><rect x="4" y=".5" width="6" height="6" rx="1" fill="none" stroke="currentColor"/><rect x="1" y="7.5" width="12" height="6" rx="1" fill="none" stroke="currentColor"/><circle cx="7" cy="10.5" r=".5" fill="currentColor"/></symbol>
+    <symbol id="ic-ai" viewBox="0 0 14 14"><path d="M7 .5l1.5 3L12 5l-3.5 1.5L7 10l-1.5-3.5L2 5l3.5-1.5L7 .5z" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M4.5 9l-2 4.5M9.5 9l2 4.5M7 11.5V14" fill="none" stroke="currentColor" stroke-linecap="round"/></symbol>
+    <symbol id="ic-plus" viewBox="0 0 14 14"><path d="M7 1v12M1 7h12" fill="none" stroke="currentColor" stroke-linecap="round"/></symbol>
+    <symbol id="ic-close" viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12" fill="none" stroke="currentColor" stroke-linecap="round"/></symbol>
+    <symbol id="ic-eye" viewBox="0 0 14 14"><path d="M7 2.5C3.5 2.5.5 7 .5 7s3 4.5 6.5 4.5S13.5 7 13.5 7s-3-4.5-6.5-4.5z" fill="none" stroke="currentColor"/><circle cx="7" cy="7" r="2" fill="none" stroke="currentColor"/></symbol>
+    <symbol id="ic-search" viewBox="0 0 14 14"><circle cx="5.5" cy="5.5" r="4.5" fill="none" stroke="currentColor"/><path d="M9 9l4.5 4.5" fill="none" stroke="currentColor" stroke-linecap="round"/></symbol>
+    <symbol id="ic-command" viewBox="0 0 14 14"><path d="M3.5 10.5a2 2 0 1 1 2-2v1a1 1 0 0 0 1 1h1a2 2 0 1 1-2 2v-1a1 1 0 0 0-1-1h-1z" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M3.5 3.5a2 2 0 1 0 2 2v1a1 1 0 0 0 1 1h1a2 2 0 1 0-2-2v1a1 1 0 0 1-1 1h-1z" fill="none" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-theme" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="currentColor"/><path d="M7 1a6 6 0 0 1 0 12V1z" fill="currentColor" opacity=".15"/></symbol>
+    <symbol id="ic-settings" viewBox="0 0 14 14"><circle cx="7" cy="7" r="2" fill="none" stroke="currentColor"/><path d="M7 .5v2M7 11.5v2M.5 7h2M11.5 7h2M2.1 2.1l1.4 1.4M10.5 10.5l1.4 1.4M2.1 11.9l1.4-1.4M10.5 3.5l1.4-1.4" fill="none" stroke="currentColor" stroke-linecap="round"/></symbol>
+    <symbol id="ic-ui" viewBox="0 0 14 14"><rect x=".5" y="1.5" width="13" height="11" rx="1" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M.5 4.5h13M3.5 4.5v8M10.5 4.5v8" fill="none" stroke="currentColor" opacity=".5"/></symbol>
+    <symbol id="ic-light" viewBox="0 0 14 14"><path d="M7 .5v2M4.5 2.5L3 1M9.5 2.5L11 1M2 5.5H.5M13.5 5.5H12" fill="none" stroke="currentColor" stroke-linecap="round"/><path d="M4.5 7.5A2.5 2.5 0 0 1 7 5a2.5 2.5 0 0 1 2.5 2.5c0 1.5-1 2-1 3.5h-3c0-1.5-1-2-1-3.5z" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M5.5 12.5h3v1h-3z" fill="none" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-particles" viewBox="0 0 14 14"><circle cx="4" cy="3" r="1.5" fill="none" stroke="currentColor"/><circle cx="10" cy="2" r="1" fill="none" stroke="currentColor"/><circle cx="12" cy="7" r="1" fill="none" stroke="currentColor"/><circle cx="11" cy="12" r="1.5" fill="none" stroke="currentColor"/><circle cx="3" cy="10" r="1" fill="none" stroke="currentColor"/><circle cx="7" cy="7" r="1" fill="none" stroke="currentColor"/></symbol>
+    <symbol id="ic-mesh" viewBox="0 0 14 14"><path d="M7 1l5 3v6l-5 3-5-3V4l5-3z" fill="none" stroke="currentColor" stroke-linejoin="round"/><path d="M7 1v12M2 4l5 3 5-3" fill="none" stroke="currentColor" opacity=".5"/></symbol>
+    <symbol id="ic-arrow" viewBox="0 0 14 14"><path d="M5 2l5 5-5 5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 14 14"><path d="M2 7l3.5 4L12 3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-more" viewBox="0 0 14 14"><circle cx="7" cy="3" r="1" fill="currentColor"/><circle cx="7" cy="7" r="1" fill="currentColor"/><circle cx="7" cy="11" r="1" fill="currentColor"/></symbol>
+  </svg>
+
   <div class="titlebar glass">
     <span>ZPX Studio</span>
     <div class="titlebar-center">
@@ -273,19 +397,19 @@
       <div class="left-panel" id="p-ecs">
         <div class="ecs-browser" id="ecs-browser">
           <div class="ecs-section">
-            <div class="ecs-hdr" onclick="togECS(this)"><span class="ecs-arr">▶</span> Entities <span class="ecs-cnt" id="ecs-entity-count">0</span></div>
+            <div class="ecs-hdr" onclick="togECS(this)"><svg class="ecs-arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg> Entities <span class="ecs-cnt" id="ecs-entity-count">0</span></div>
             <div class="ecs-body" id="ecs-entity-list"></div>
           </div>
           <div class="ecs-section">
-            <div class="ecs-hdr" onclick="togECS(this)"><span class="ecs-arr">▶</span> Components <span class="ecs-cnt" id="ecs-comp-count">0</span></div>
+            <div class="ecs-hdr" onclick="togECS(this)"><svg class="ecs-arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg> Components <span class="ecs-cnt" id="ecs-comp-count">0</span></div>
             <div class="ecs-body" id="ecs-comp-list"></div>
           </div>
           <div class="ecs-section">
-            <div class="ecs-hdr" onclick="togECS(this)"><span class="ecs-arr">▶</span> Systems <span class="ecs-cnt" id="ecs-sys-count">0</span></div>
+            <div class="ecs-hdr" onclick="togECS(this)"><svg class="ecs-arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg> Systems <span class="ecs-cnt" id="ecs-sys-count">0</span></div>
             <div class="ecs-body" id="ecs-sys-list"></div>
           </div>
           <div class="ecs-section">
-            <div class="ecs-hdr" onclick="togECS(this)"><span class="ecs-arr">▶</span> Scenes <span class="ecs-cnt" id="ecs-scene-count">0</span></div>
+            <div class="ecs-hdr" onclick="togECS(this)"><svg class="ecs-arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg> Scenes <span class="ecs-cnt" id="ecs-scene-count">0</span></div>
             <div class="ecs-body" id="ecs-scene-list"></div>
           </div>
         </div>
@@ -296,15 +420,15 @@
     <!-- Center -->
     <div class="center">
       <div class="toolbar glass">
-        <button class="btn run" id="run-btn" onclick="runGame()">▶ Run</button>
-        <button class="btn stop" onclick="stopGame()">■ Stop</button>
+        <button class="btn run" id="run-btn" onclick="runGame()"><svg class="icon" width="14" height="14" viewBox="0 0 14 14"><use href="#ic-play"/></svg> Run</button>
+        <button class="btn stop" onclick="stopGame()"><svg class="icon" width="14" height="14" viewBox="0 0 14 14"><use href="#ic-stop"/></svg> Stop</button>
         <div class="sep"></div>
         <div class="gizmo-btns">
-          <div class="gz active" onclick="setGizmo('translate',this)" title="Translate (W)">W</div>
-          <div class="gz" onclick="setGizmo('rotate',this)" title="Rotate (E)">E</div>
-          <div class="gz" onclick="setGizmo('scale',this)" title="Scale (R)">R</div>
+          <div class="gz active" onclick="setGizmo('translate',this)" title="Translate (W)"><svg class="icon" width="12" height="12" viewBox="0 0 14 14"><use href="#ic-translate"/></svg></div>
+          <div class="gz" onclick="setGizmo('rotate',this)" title="Rotate (E)"><svg class="icon" width="12" height="12" viewBox="0 0 14 14"><use href="#ic-rotate"/></svg></div>
+          <div class="gz" onclick="setGizmo('scale',this)" title="Scale (R)"><svg class="icon" width="12" height="12" viewBox="0 0 14 14"><use href="#ic-scale"/></svg></div>
         </div>
-        <span id="hr-status" style="font-size:9px;color:var(--text3);margin-left:auto">HR:OFF</span>
+        <span id="hr-status" class="pill" style="margin-left:auto;border:1px solid var(--glass-border);color:var(--text3)"><span class="badge-dot off" id="hr-dot"></span>HR</span>
         <div class="sep"></div>
         <div class="cam-btns">
           <div class="cam active" onclick="setCam('persp',this)">Persp</div>
@@ -313,15 +437,15 @@
           <div class="cam" onclick="setCam('side',this)">Side</div>
         </div>
         <div class="sep"></div>
-        <button class="btn" onclick="toggleSnap()" id="snap-btn">Snap</button>
+        <button class="btn" onclick="toggleSnap()" id="snap-btn"><svg class="icon icon-mr" width="12" height="12" viewBox="0 0 14 14"><use href="#ic-snap"/></svg>Snap</button>
         <input type="number" class="pi pi-sm" value="1" id="snap-val" style="width:32px">
         <div class="sep"></div>
-        <button class="btn" onclick="toggleWire()" id="wire-btn">Wire</button>
-        <button class="btn" onclick="toggleGrid()" id="grid-btn">Grid</button>
-        <button class="btn" onclick="toggleShadows()" id="shadow-btn">Shadow</button>
+        <button class="btn" onclick="toggleWire()" id="wire-btn"><svg class="icon icon-mr" width="12" height="12" viewBox="0 0 14 14"><use href="#ic-wireframe"/></svg>Wire</button>
+        <button class="btn" onclick="toggleGrid()" id="grid-btn"><svg class="icon icon-mr" width="12" height="12" viewBox="0 0 14 14"><use href="#ic-grid"/></svg>Grid</button>
+        <button class="btn" onclick="toggleShadows()" id="shadow-btn"><svg class="icon icon-mr" width="12" height="12" viewBox="0 0 14 14"><use href="#ic-shadow"/></svg>Shadow</button>
         <div class="sep"></div>
-        <button class="btn ai" onclick="aiGenerate()">✦ AI</button>
-        <button class="btn" onclick="exportGame()">Export</button>
+        <button class="btn ai" onclick="aiGenerate()"><svg class="icon icon-mr" width="12" height="12" viewBox="0 0 14 14"><use href="#ic-ai"/></svg> AI</button>
+        <button class="btn" onclick="exportGame()"><svg class="icon icon-mr" width="12" height="12" viewBox="0 0 14 14"><use href="#ic-export"/></svg>Export</button>
       </div>
 
       <div class="viewport-area">
@@ -351,14 +475,14 @@
         <div class="viewport-panel" id="vp-nodes"><div class="node-editor"><canvas id="node-canvas"></canvas></div></div>
         <div class="viewport-panel" id="vp-assets">
           <div class="asset-panel">
-            <div class="asset-toolbar"><button class="btn">Import</button><button class="btn">New</button><button class="btn">Filter</button></div>
+            <div class="asset-toolbar"><button class="btn"><svg class="icon icon-mr" width="11" height="11" viewBox="0 0 14 14"><use href="#ic-export"/></svg>Import</button><button class="btn"><svg class="icon icon-mr" width="11" height="11" viewBox="0 0 14 14"><use href="#ic-plus"/></svg>New</button><button class="btn"><svg class="icon icon-mr" width="11" height="11" viewBox="0 0 14 14"><use href="#ic-search"/></svg>Filter</button></div>
             <div class="asset-grid" id="asset-grid"></div>
           </div>
         </div>
         <div class="viewport-panel" id="vp-timeline">
           <div class="timeline-panel">
             <div class="timeline-header">
-              <div class="tl-controls"><button class="btn">◀</button><button class="btn run">▶</button><button class="btn stop">■</button><button class="btn">▶</button></div>
+              <div class="tl-controls"><button class="btn"><svg class="icon" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-arrow" transform="rotate(180 7 7)"/></svg></button><button class="btn run"><svg class="icon" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-play"/></svg></button><button class="btn stop"><svg class="icon" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-stop"/></svg></button><button class="btn"><svg class="icon" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></button></div>
               <span style="font-size:10px" id="tl-frame">Frame: 0</span>
               <span style="font-size:10px;color:var(--text2)">30 FPS</span>
             </div>
@@ -444,7 +568,7 @@ print("Ready with", ECS.entity_count(world), "entities")
       </div>
       <div class="right-panel-content" id="rp-help" style="display:none">
         <div class="insp" style="padding:6px;font-size:10px;line-height:1.5;color:var(--text2)">
-          <div class="insp-h open" onclick="togSec(this)"><span>ZPX Quick Reference</span><span class="arr">▶</span></div>
+          <div class="insp-h open" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-code"/></svg>ZPX Quick Reference</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b">
             <div class="help-item"><b>fn</b> name(params): ... end</div>
             <div class="help-item"><b>let</b> x = value</div>
@@ -455,14 +579,14 @@ print("Ready with", ECS.entity_count(world), "entities")
             <div class="help-item"><b>and</b> / <b>or</b> / <b>not</b> (not && || !)</div>
             <div class="help-item"><b>none</b> (not null)</div>
           </div>
-          <div class="insp-h" onclick="togSec(this)"><span>ECS Keywords</span><span class="arr">▶</span></div>
+          <div class="insp-h" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-system"/></svg>ECS Keywords</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b closed">
             <div class="help-item"><b>entity</b> Name: ... end</div>
             <div class="help-item"><b>comp</b> Name: fields ... end</div>
             <div class="help-item"><b>system</b> Name(comps): ... end</div>
             <div class="help-item"><b>scene</b> Name: ... end</div>
           </div>
-          <div class="insp-h" onclick="togSec(this)"><span>ECS Runtime</span><span class="arr">▶</span></div>
+          <div class="insp-h" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-entity"/></svg>ECS Runtime</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b closed">
             <div class="help-item"><b>ECS.World()</b> create world</div>
             <div class="help-item"><b>ECS.create_entity(w, name)</b></div>
@@ -473,7 +597,7 @@ print("Ready with", ECS.entity_count(world), "entities")
             <div class="help-item"><b>ECS.register_system(w, name, types, fn)</b></div>
             <div class="help-item"><b>ECS.run_systems(w, dt)</b></div>
           </div>
-          <div class="insp-h" onclick="togSec(this)"><span>Math Builtins</span><span class="arr">▶</span></div>
+          <div class="insp-h" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-entity"/></svg>Math Builtins</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b closed">
             <div class="help-item"><b>vec3(x, y, z)</b></div>
             <div class="help-item"><b>vec3_add/sub/dot/cross/length/normalize</b></div>
@@ -482,7 +606,7 @@ print("Ready with", ECS.entity_count(world), "entities")
             <div class="help-item"><b>mat4()</b> identity matrix</div>
             <div class="help-item"><b>mat4_translate/scale/rotate/perspective/look_at</b></div>
           </div>
-          <div class="insp-h" onclick="togSec(this)"><span>Keyboard Shortcuts</span><span class="arr">▶</span></div>
+          <div class="insp-h" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-command"/></svg>Keyboard Shortcuts</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b closed" style="font-size:9px">
             <div class="help-item"><b>Ctrl+Shift+P</b> Command Palette</div>
             <div class="help-item"><b>Ctrl+P</b> Quick Search</div>
@@ -495,7 +619,7 @@ print("Ready with", ECS.entity_count(world), "entities")
       </div>
       <div class="right-panel-content" id="rp-project" style="display:none">
         <div class="insp">
-          <div class="insp-h open" onclick="togSec(this)"><span>Project Settings</span><span class="arr">▶</span></div>
+          <div class="insp-h open" onclick="togSec(this)"><span>Project Settings</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b">
             <div class="pr"><span class="pl">Name</span><input class="pi" value="My Game"></div>
             <div class="pr"><span class="pl">Ver</span><input class="pi" value="1.0.0"></div>
@@ -504,7 +628,7 @@ print("Ready with", ECS.entity_count(world), "entities")
           </div>
         </div>
         <div class="insp">
-          <div class="insp-h" onclick="togSec(this)"><span>Rendering</span><span class="arr">▶</span></div>
+          <div class="insp-h" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-entity"/></svg>Rendering</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b closed">
             <div class="pr"><span class="pl">Pipe</span><select class="ps"><option>Forward</option><option>Deferred</option></select></div>
             <div class="pr"><span class="pl">Shad</span><select class="ps"><option>PCF</option><option>CSM</option><option>VSM</option></select></div>
@@ -514,7 +638,7 @@ print("Ready with", ECS.entity_count(world), "entities")
           </div>
         </div>
         <div class="insp">
-          <div class="insp-h" onclick="togSec(this)"><span>Physics</span><span class="arr">▶</span></div>
+          <div class="insp-h" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-entity"/></svg>Physics</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b closed">
             <div class="pr"><span class="pl">Grav</span><input class="pi" value="-9.81"></div>
             <div class="pr"><span class="pl">Step</span><input class="pi" value="0.02"></div>
@@ -522,7 +646,7 @@ print("Ready with", ECS.entity_count(world), "entities")
           </div>
         </div>
         <div class="insp">
-          <div class="insp-h" onclick="togSec(this)"><span>Audio</span><span class="arr">▶</span></div>
+          <div class="insp-h" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-audio"/></svg>Audio</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b closed">
             <div class="pr"><span class="pl">Master</span><input class="pi" type="range" min="0" max="1" value="1"></div>
             <div class="pr"><span class="pl">SFX</span><input class="pi" type="range" min="0" max="1" value="0.8"></div>
@@ -530,7 +654,7 @@ print("Ready with", ECS.entity_count(world), "entities")
           </div>
         </div>
         <div class="insp">
-          <div class="insp-h" onclick="togSec(this)"><span>Input</span><span class="arr">▶</span></div>
+          <div class="insp-h" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-command"/></svg>Input</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b closed">
             <div class="pr"><span class="pl">W</span><input class="pi" value="Forward"></div>
             <div class="pr"><span class="pl">S</span><input class="pi" value="Backward"></div>
@@ -540,7 +664,7 @@ print("Ready with", ECS.entity_count(world), "entities")
           </div>
         </div>
         <div class="insp">
-          <div class="insp-h" onclick="togSec(this)"><span>Export</span><span class="arr">▶</span></div>
+          <div class="insp-h" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-export"/></svg>Export</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b closed">
             <div class="pr"><span class="pl">Targ</span><select class="ps"><option>Windows</option><option>Linux</option><option>macOS</option><option>Web</option><option>Android</option><option>iOS</option></select></div>
             <div class="pr"><span class="pl">Comp</span><select class="ps"><option>Default</option><option>Crunch</option><option>Max</option></select></div>
@@ -596,6 +720,15 @@ print("Ready with", ECS.entity_count(world), "entities")
     let currentFilePath = null;
     let openTabs = [];
 
+    // SVG Icon helper — usage: svg('icon-name', 'extra-class')
+    function svg(name, cls = '') {
+      return `<svg class="icon icon-${name} ${cls}" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><use href="#ic-${name}"/></svg>`;
+    }
+    // Shortcut for icon-wrapped span
+    function ico(name, txt) {
+      return `${svg(name)}<span>${txt}</span>`;
+    }
+
     function log(msg) { const d = document.createElement('div'); d.textContent = msg; out.appendChild(d); out.scrollTop = out.scrollHeight; }
     function setTheme(t) { document.documentElement.setAttribute('data-theme', t); }
 
@@ -604,16 +737,16 @@ print("Ready with", ECS.entity_count(world), "entities")
       const files = await ipcRenderer.invoke('list-files');
       const list = document.getElementById('file-tree-list');
       list.innerHTML = '';
-      const fileIcons = { '.zpx': '📄', '.json': '📄', '.png': '🖼', '.jpg': '🖼', '.wav': '🔊', '.mp3': '🎵', '.glsl': '✏️', '.hdr': '🖼', '.anim': '🎬' };
+      const fileIcons = { '.zpx': 'code', '.json': 'code', '.png': 'image', '.jpg': 'image', '.wav': 'audio', '.mp3': 'audio', '.glsl': 'shader', '.hdr': 'image', '.anim': 'video', '.md': 'file' };
       files.forEach(f => {
         const isZpx = f.name.endsWith('.zpx');
         const ext = f.name.substring(f.name.lastIndexOf('.'));
-        const icon = f.isDir ? '📁' : (fileIcons[ext] || '📄');
+        const icon = f.isDir ? 'folder' : (fileIcons[ext] || 'file');
         const depth = f.name.split('/').length - 1;
         const indent = depth > 0 ? 'indent' : '';
         const li = document.createElement('li');
         li.className = (f.isDir ? '' : 'file-item') + (indent ? ' ' + indent : '');
-        li.innerHTML = `<span class="icon">${icon}</span>${f.isDir ? f.name + '/' : f.name}`;
+        li.innerHTML = svg(icon, 'icon-mr') + (f.isDir ? f.name + '/' : f.name);
         if (!f.isDir && isZpx) {
           li.onclick = () => openFile(f.name);
           li.style.cursor = 'pointer';
@@ -687,7 +820,10 @@ print("Ready with", ECS.entity_count(world), "entities")
     let hotReloadOn = false;
     ipcRenderer.on('hot-reload-toggled', (e, state) => {
       hotReloadOn = state;
-      document.getElementById('hr-status').textContent = state ? 'HR:ON' : 'HR:OFF';
+      const hrEl = document.getElementById('hr-status');
+      const hrDot = document.getElementById('hr-dot');
+      hrEl.textContent = 'HR';
+      hrDot.className = 'badge-dot ' + (state ? 'on' : 'off');
       log('Hot reload: ' + (state ? 'ON' : 'OFF'));
     });
     ipcRenderer.on('file-changed', (e, filename) => {
@@ -706,25 +842,25 @@ print("Ready with", ECS.entity_count(world), "entities")
 
     // === Command Palette ===
     const commands = [
-      { id: 'run', icon: '▶', label: 'Run Game', shortcut: 'Ctrl+R', action: () => runGame() },
-      { id: 'stop', icon: '■', label: 'Stop Game', shortcut: '', action: () => stopGame() },
-      { id: 'export', icon: '📦', label: 'Export Project', shortcut: '', action: () => exportGame() },
-      { id: 'toggle-wire', icon: '◇', label: 'Toggle Wireframe', shortcut: '', action: () => toggleWire() },
-      { id: 'toggle-grid', icon: '⊞', label: 'Toggle Grid', shortcut: '', action: () => toggleGrid() },
-      { id: 'toggle-shadow', icon: '●', label: 'Toggle Shadows', shortcut: '', action: () => toggleShadows() },
-      { id: 'translate', icon: '↔', label: 'Translate Gizmo (W)', shortcut: 'W', action: () => { const e = document.querySelectorAll('.gz')[0]; if(e) setGizmo('translate', e); } },
-      { id: 'rotate', icon: '↻', label: 'Rotate Gizmo (E)', shortcut: 'E', action: () => { const e = document.querySelectorAll('.gz')[1]; if(e) setGizmo('rotate', e); } },
-      { id: 'scale', icon: '⤡', label: 'Scale Gizmo (R)', shortcut: 'R', action: () => { const e = document.querySelectorAll('.gz')[2]; if(e) setGizmo('scale', e); } },
-      { id: 'cam-persp', icon: '◈', label: 'Camera: Perspective', shortcut: '', action: () => { const e = document.querySelectorAll('.cam')[0]; if(e) setCam('persp', e); } },
-      { id: 'cam-top', icon: '◈', label: 'Camera: Top', shortcut: '', action: () => { const e = document.querySelectorAll('.cam')[1]; if(e) setCam('top', e); } },
-      { id: 'cam-front', icon: '◈', label: 'Camera: Front', shortcut: '', action: () => { const e = document.querySelectorAll('.cam')[2]; if(e) setCam('front', e); } },
-      { id: 'cam-side', icon: '◈', label: 'Camera: Side', shortcut: '', action: () => { const e = document.querySelectorAll('.cam')[3]; if(e) setCam('side', e); } },
-      { id: 'toggle-snap', icon: '⊞', label: 'Toggle Snap', shortcut: '', action: () => toggleSnap() },
-      { id: 'ai-gen', icon: '✦', label: 'AI Generate Code', shortcut: '', action: () => aiGenerate() },
-      { id: 'ai-chat', icon: '✦', label: 'Focus AI Chat', shortcut: '', action: () => { document.getElementById('ai-input').focus(); } },
-      { id: 'theme-black', icon: '●', label: 'Theme: Black', shortcut: '', action: () => setTheme('black') },
-      { id: 'theme-white', icon: '○', label: 'Theme: White', shortcut: '', action: () => setTheme('white') },
-      { id: 'theme-glass', icon: '◇', label: 'Theme: Liquid Glass', shortcut: '', action: () => setTheme('glass') },
+      { id: 'run', icon: 'play', label: 'Run Game', shortcut: 'Ctrl+R', action: () => runGame() },
+      { id: 'stop', icon: 'stop', label: 'Stop Game', shortcut: '', action: () => stopGame() },
+      { id: 'export', icon: 'export', label: 'Export Project', shortcut: '', action: () => exportGame() },
+      { id: 'toggle-wire', icon: 'wireframe', label: 'Toggle Wireframe', shortcut: '', action: () => toggleWire() },
+      { id: 'toggle-grid', icon: 'grid', label: 'Toggle Grid', shortcut: '', action: () => toggleGrid() },
+      { id: 'toggle-shadow', icon: 'shadow', label: 'Toggle Shadows', shortcut: '', action: () => toggleShadows() },
+      { id: 'translate', icon: 'translate', label: 'Translate Gizmo (W)', shortcut: 'W', action: () => { const e = document.querySelectorAll('.gz')[0]; if(e) setGizmo('translate', e); } },
+      { id: 'rotate', icon: 'rotate', label: 'Rotate Gizmo (E)', shortcut: 'E', action: () => { const e = document.querySelectorAll('.gz')[1]; if(e) setGizmo('rotate', e); } },
+      { id: 'scale', icon: 'scale', label: 'Scale Gizmo (R)', shortcut: 'R', action: () => { const e = document.querySelectorAll('.gz')[2]; if(e) setGizmo('scale', e); } },
+      { id: 'cam-persp', icon: 'camera', label: 'Camera: Perspective', shortcut: '', action: () => { const e = document.querySelectorAll('.cam')[0]; if(e) setCam('persp', e); } },
+      { id: 'cam-top', icon: 'camera', label: 'Camera: Top', shortcut: '', action: () => { const e = document.querySelectorAll('.cam')[1]; if(e) setCam('top', e); } },
+      { id: 'cam-front', icon: 'camera', label: 'Camera: Front', shortcut: '', action: () => { const e = document.querySelectorAll('.cam')[2]; if(e) setCam('front', e); } },
+      { id: 'cam-side', icon: 'camera', label: 'Camera: Side', shortcut: '', action: () => { const e = document.querySelectorAll('.cam')[3]; if(e) setCam('side', e); } },
+      { id: 'toggle-snap', icon: 'snap', label: 'Toggle Snap', shortcut: '', action: () => toggleSnap() },
+      { id: 'ai-gen', icon: 'ai', label: 'AI Generate Code', shortcut: '', action: () => aiGenerate() },
+      { id: 'ai-chat', icon: 'ai', label: 'Focus AI Chat', shortcut: '', action: () => { document.getElementById('ai-input').focus(); } },
+      { id: 'theme-black', icon: 'theme', label: 'Theme: Black', shortcut: '', action: () => setTheme('black') },
+      { id: 'theme-white', icon: 'theme', label: 'Theme: White', shortcut: '', action: () => setTheme('white') },
+      { id: 'theme-glass', icon: 'theme', label: 'Theme: Liquid Glass', shortcut: '', action: () => setTheme('glass') },
     ];
     let cmdHighlight = 0;
     function openCmdPalette() {
@@ -744,7 +880,7 @@ print("Ready with", ECS.entity_count(world), "entities")
       const filtered = commands.filter(c => c.label.toLowerCase().includes(q) || c.id.includes(q));
       cmdHighlight = 0;
       list.innerHTML = filtered.map((c, i) =>
-        `<div class="overlay-item${i===0?' highlight':''}" onclick="execCmd(${commands.indexOf(c)})"><span class="oi-icon">${c.icon}</span><span class="oi-label">${c.label}</span><span class="oi-shortcut">${c.shortcut}</span></div>`
+        `<div class="overlay-item${i===0?' highlight':''}" onclick="execCmd(${commands.indexOf(c)})"><span class="oi-icon">${svg(c.icon)}</span><span class="oi-label">${c.label}</span><span class="oi-shortcut">${c.shortcut}</span></div>`
       ).join('');
     }
     function cmdKeydown(e) {
@@ -771,23 +907,23 @@ print("Ready with", ECS.entity_count(world), "entities")
         if (result.files) {
           Object.keys(result.files).forEach(fp => {
             const rel = fp.replace(/^.*?[\\\/](?=[^\\\/]*\.zpx)/, '');
-            items.push({ icon: '📄', label: fp.split(/[\\\/]/).pop(), type: 'file', file: fp });
+            items.push({ icon: 'file', label: fp.split(/[\\\/]/).pop(), type: 'file', file: fp });
           });
         }
 
-        if (result.ecs_graph) {
-          const g = result.ecs_graph;
+        if (result.ecs) {
+          const g = result.ecs;
           Object.keys(g.entities || {}).forEach(name => {
-            items.push({ icon: '✦', label: name + ' (Entity)', type: 'entity', ecs: 'entity' });
+            items.push({ icon: 'entity', label: name + ' (Entity)', type: 'entity', ecs: 'entity' });
           });
           Object.keys(g.components || {}).forEach(name => {
-            items.push({ icon: '■', label: name + ' (Component)', type: 'component', ecs: 'component' });
+            items.push({ icon: 'component', label: name + ' (Component)', type: 'component', ecs: 'component' });
           });
           Object.keys(g.systems || {}).forEach(name => {
-            items.push({ icon: '⚙', label: name + ' (System)', type: 'system', ecs: 'system' });
+            items.push({ icon: 'system', label: name + ' (System)', type: 'system', ecs: 'system' });
           });
           Object.keys(g.scenes || {}).forEach(name => {
-            items.push({ icon: '◈', label: name + ' (Scene)', type: 'scene', ecs: 'scene' });
+            items.push({ icon: 'scene', label: name + ' (Scene)', type: 'scene', ecs: 'scene' });
           });
         }
 
@@ -819,24 +955,25 @@ print("Ready with", ECS.entity_count(world), "entities")
 
       entityList.innerHTML = entities.map(name => {
         const e = g.entities[name];
-        return `<div class="ecs-item" onclick="log('Entity: ${name}')"><span class="ecs-ico">✦</span>${name}${e.components && e.components.length ? '<span class="ecs-sub">' + e.components.length + ' comps</span>' : ''}</div>`;
+        return `<div class="ecs-item" onclick="log('Entity: ${name}')"><span class="ecs-ico">${svg('entity')}</span><span>${name}</span>${e.components && e.components.length ? '<span class="ecs-sub">' + e.components.length + ' comps</span>' : ''}</div>`;
       }).join('');
 
       compList.innerHTML = components.map(name => {
         const c = g.components[name];
-        return `<div class="ecs-item" onclick="log('Component: ${name}')"><span class="ecs-ico">■</span>${name}<span class="ecs-file">${c.fields ? Object.keys(c.fields).length + ' fields' : ''}</span></div>`;
+        const flds = c.fields ? Object.keys(c.fields) : [];
+        return `<div class="ecs-item" onclick="log('Component: ${name}')"><span class="ecs-ico">${svg('component')}</span><span>${name}</span><span class="ecs-file">${flds.length + ' fields'}</span></div>`;
       }).join('');
 
       sysList.innerHTML = systems.map(name => {
         const s = g.systems[name];
         const deps = s.requires ? s.requires.join(', ') : '';
-        return `<div class="ecs-item" onclick="log('System: ${name}')"><span class="ecs-ico">⚙</span>${name}<span class="ecs-sub">${deps || ''}</span></div>`;
+        return `<div class="ecs-item" onclick="log('System: ${name}')"><span class="ecs-ico">${svg('system')}</span><span>${name}</span><span class="ecs-sub">${deps || ''}</span></div>`;
       }).join('');
 
       sceneList.innerHTML = scenes.map(name => {
         const s = g.scenes[name];
         const ents = s.entities ? s.entities.join(', ') : '';
-        return `<div class="ecs-item" onclick="log('Scene: ${name}')"><span class="ecs-ico">◈</span>${name}<span class="ecs-sub">${ents || ''}</span></div>`;
+        return `<div class="ecs-item" onclick="log('Scene: ${name}')"><span class="ecs-ico">${svg('scene')}</span><span>${name}</span><span class="ecs-sub">${ents || ''}</span></div>`;
       }).join('');
     }
 
@@ -858,7 +995,7 @@ print("Ready with", ECS.entity_count(world), "entities")
       const filtered = searchItems.filter(s => s.label.toLowerCase().includes(q));
       qsHighlight = 0;
       list.innerHTML = filtered.map((s, i) =>
-        `<div class="overlay-item${i===0?' highlight':''}" onclick="qsSelect(${searchItems.indexOf(s)})"><span class="oi-icon">${s.icon}</span><span class="oi-label">${s.label}</span><span class="oi-shortcut" style="color:var(--text3)">${s.type}</span></div>`
+        `<div class="overlay-item${i===0?' highlight':''}" onclick="qsSelect(${searchItems.indexOf(s)})"><span class="oi-icon">${svg(s.icon)}</span><span class="oi-label">${s.label}</span><span class="oi-shortcut" style="color:var(--text3)">${s.type}</span></div>`
       ).join('');
     }
     function qsKeydown(e) {
@@ -878,7 +1015,7 @@ print("Ready with", ECS.entity_count(world), "entities")
       let ctx = '';
       if (ecsData) {
         ctx += 'Project has:\n';
-        const g = ecsData.ecs_graph || {};
+        const g = ecsData.ecs || {};
         if (g.entities) ctx += '- Entities: ' + Object.keys(g.entities).join(', ') + '\n';
         if (g.components) ctx += '- Components: ' + Object.keys(g.components).join(', ') + '\n';
         if (g.systems) ctx += '- Systems: ' + Object.keys(g.systems).join(', ') + '\n';
@@ -1041,26 +1178,26 @@ print("Ready with", ECS.entity_count(world), "entities")
 
     // Hierarchy
     const sceneObjects = [
-      { id: 1, name: 'Player', icon: '📦', type: 'mesh', children: [
-        { id: 11, name: 'AudioSource', icon: '🔊', type: 'audio' },
-        { id: 12, name: 'player.zpx', icon: '✏️', type: 'script' },
-        { id: 13, name: 'Rigidbody', icon: '⚡', type: 'physics' }
+      { id: 1, name: 'Player', icon: 'mesh', type: 'mesh', children: [
+        { id: 11, name: 'AudioSource', icon: 'audio', type: 'audio' },
+        { id: 12, name: 'player.zpx', icon: 'code', type: 'script' },
+        { id: 13, name: 'Rigidbody', icon: 'system', type: 'physics' }
       ]},
-      { id: 2, name: 'Ground', icon: '📦', type: 'mesh', children: [] },
-      { id: 3, name: 'Enemies', icon: '📁', type: 'group', children: [
-        { id: 31, name: 'Enemy_01', icon: '📦', type: 'mesh', children: [] },
-        { id: 32, name: 'Enemy_02', icon: '📦', type: 'mesh', children: [] },
-        { id: 33, name: 'Enemy_03', icon: '📦', type: 'mesh', children: [] }
+      { id: 2, name: 'Ground', icon: 'mesh', type: 'mesh', children: [] },
+      { id: 3, name: 'Enemies', icon: 'folder', type: 'group', children: [
+        { id: 31, name: 'Enemy_01', icon: 'mesh', type: 'mesh', children: [] },
+        { id: 32, name: 'Enemy_02', icon: 'mesh', type: 'mesh', children: [] },
+        { id: 33, name: 'Enemy_03', icon: 'mesh', type: 'mesh', children: [] }
       ]},
-      { id: 4, name: 'DirectionalLight', icon: '💡', type: 'light', children: [] },
-      { id: 5, name: 'PointLight', icon: '💡', type: 'light', children: [] },
-      { id: 6, name: 'MainCamera', icon: '📷', type: 'camera', children: [
-        { id: 61, name: 'AudioListener', icon: '🎧', type: 'audio' }
+      { id: 4, name: 'DirectionalLight', icon: 'light', type: 'light', children: [] },
+      { id: 5, name: 'PointLight', icon: 'light', type: 'light', children: [] },
+      { id: 6, name: 'MainCamera', icon: 'camera', type: 'camera', children: [
+        { id: 61, name: 'AudioListener', icon: 'audio', type: 'audio' }
       ]},
-      { id: 7, name: 'Particles', icon: '✨', type: 'particle', children: [] },
-      { id: 8, name: 'UI_Canvas', icon: '🖥', type: 'ui', children: [
-        { id: 81, name: 'HealthBar', icon: '📊', type: 'ui', children: [] },
-        { id: 82, name: 'ScoreText', icon: '📝', type: 'ui', children: [] }
+      { id: 7, name: 'Particles', icon: 'particles', type: 'particle', children: [] },
+      { id: 8, name: 'UI_Canvas', icon: 'ui', type: 'ui', children: [
+        { id: 81, name: 'HealthBar', icon: 'ui', type: 'ui', children: [] },
+        { id: 82, name: 'ScoreText', icon: 'file', type: 'ui', children: [] }
       ]}
     ];
     let selectedObj = 1;
@@ -1070,13 +1207,13 @@ print("Ready with", ECS.entity_count(world), "entities")
       el.innerHTML = '';
       sceneObjects.forEach(obj => {
         el.innerHTML += `<div class="h-item${obj.id===selectedObj?' selected':''}" onclick="selectObj(${obj.id})" oncontextmenu="showCtx(event,${obj.id})">
-          <span class="arrow${obj.children.length?' open':''}">${obj.children.length?'▶':''}</span>
-          <span class="ico">${obj.icon}</span><span>${obj.name}</span>
-          <span class="vis">👁</span><span class="add-btn">+</span></div>`;
+          <span class="arrow${obj.children.length?' open':''}">${obj.children.length ? svg('arrow', 'icon-sm') : ''}</span>
+          <span class="ico">${svg(obj.icon)}</span><span>${obj.name}</span>
+          <span class="vis">${svg('eye')}</span><span class="add-btn">${svg('plus')}</span></div>`;
         obj.children.forEach(ch => {
           el.innerHTML += `<div class="h-item child${ch.id===selectedObj?' selected':''}" onclick="selectObj(${ch.id})" oncontextmenu="showCtx(event,${ch.id})">
-            <span class="ico">${ch.icon}</span><span>${ch.name}</span>
-            <span class="vis">👁</span></div>`;
+            <span class="ico">${svg(ch.icon)}</span><span>${ch.name}</span>
+            <span class="vis">${svg('eye')}</span></div>`;
         });
       });
     }
@@ -1090,10 +1227,10 @@ print("Ready with", ECS.entity_count(world), "entities")
       const el = document.getElementById('inspector-content');
       let html = '';
 
-      html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span>Name</span><span class="arr">▶</span></div>
+      html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-entity"/></svg>${obj.name}</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
         <div class="insp-b"><div class="pr"><span class="pl">Name</span><input class="pi" value="${obj.name}"></div></div></div>`;
 
-      html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span>Transform</span><span class="arr">▶</span></div>
+      html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-translate"/></svg>Transform</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
         <div class="insp-b">
           <div class="pr"><span class="pl">Pos</span><input class="pi" type="number" value="0" step="0.1"><input class="pi" type="number" value="0" step="0.1"><input class="pi" type="number" value="0" step="0.1"></div>
           <div class="pr"><span class="pl">Rot</span><input class="pi" type="number" value="0" step="1"><input class="pi" type="number" value="0" step="1"><input class="pi" type="number" value="0" step="1"></div>
@@ -1101,7 +1238,7 @@ print("Ready with", ECS.entity_count(world), "entities")
         </div></div>`;
 
       if (obj.type === 'mesh' || obj.type === 'group') {
-        html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span>Mesh Renderer</span><span class="arr">▶</span></div>
+        html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-mesh"/></svg>Mesh Renderer</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b">
             <div class="pr"><span class="pl">Mesh</span><select class="ps"><option>Cube</option><option>Sphere</option><option>Plane</option><option>Cylinder</option><option>Capsule</option><option>Custom</option></select></div>
             <div class="pr"><span class="pl">Color</span><input class="pi" type="color" value="#3399ff" style="padding:0;height:20px;width:36px"><input class="pi" type="text" value="#3399FF"></div>
@@ -1112,7 +1249,7 @@ print("Ready with", ECS.entity_count(world), "entities")
             <div class="pc"><input type="checkbox" checked> Receive Shadows</div>
           </div></div>`;
 
-        html += `<div class="insp"><div class="insp-h" onclick="togSec(this)"><span>Material</span><span class="arr">▶</span></div>
+        html += `<div class="insp"><div class="insp-h" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-shader"/></svg>Material</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b closed">
             <div class="pr"><span class="pl">Shader</span><select class="ps"><option>Standard</option><option>Unlit</option><option>Transparent</option><option>Emissive</option><option>Water</option><option>Grass</option></select></div>
             <div class="pr"><span class="pl">Emit</span><input class="pi" type="range" min="0" max="5" step="0.1" value="0"></div>
@@ -1121,7 +1258,7 @@ print("Ready with", ECS.entity_count(world), "entities")
       }
 
       if (obj.type === 'mesh' || obj.type === 'group' || obj.type === 'physics') {
-        html += `<div class="insp"><div class="insp-h" onclick="togSec(this)"><span>Physics</span><span class="arr">▶</span></div>
+        html += `<div class="insp"><div class="insp-h" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-system"/></svg>Physics</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b closed">
             <div class="pr"><span class="pl">Type</span><select class="ps"><option>Static</option><option selected>Dynamic</option><option>Kinematic</option></select></div>
             <div class="pr"><span class="pl">Mass</span><input class="pi" type="number" value="1" step="0.1"></div>
@@ -1137,7 +1274,7 @@ print("Ready with", ECS.entity_count(world), "entities")
       }
 
       if (obj.type === 'script') {
-        html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span>Script</span><span class="arr">▶</span></div>
+        html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-code"/></svg>Script</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b">
             <div class="pr"><span class="pl">File</span><input class="pi" value="${obj.name}" readonly></div>
             <div class="pr"><span class="pl">Speed</span><input class="pi" type="number" value="5" step="0.5"></div>
@@ -1147,7 +1284,7 @@ print("Ready with", ECS.entity_count(world), "entities")
       }
 
       if (obj.type === 'audio') {
-        html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span>Audio Source</span><span class="arr">▶</span></div>
+        html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-audio"/></svg>Audio Source</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b">
             <div class="pr"><span class="pl">Clip</span><input class="pi" value="jump.wav" readonly></div>
             <div class="pr"><span class="pl">Vol</span><input class="pi" type="range" min="0" max="1" step="0.1" value="0.8"></div>
@@ -1160,7 +1297,7 @@ print("Ready with", ECS.entity_count(world), "entities")
       }
 
       if (obj.type === 'light') {
-        html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span>Light</span><span class="arr">▶</span></div>
+        html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-light"/></svg>Light</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b">
             <div class="pr"><span class="pl">Type</span><select class="ps"><option>Directional</option><option>Point</option><option>Spot</option><option>Area</option></select></div>
             <div class="pr"><span class="pl">Color</span><input class="pi" type="color" value="#ffffff" style="padding:0;height:20px;width:36px"></div>
@@ -1172,7 +1309,7 @@ print("Ready with", ECS.entity_count(world), "entities")
       }
 
       if (obj.type === 'camera') {
-        html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span>Camera</span><span class="arr">▶</span></div>
+        html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-camera"/></svg>Camera</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b">
             <div class="pr"><span class="pl">FOV</span><input class="pi" type="number" value="60"></div>
             <div class="pr"><span class="pl">Near</span><input class="pi" type="number" value="0.1" step="0.01"></div>
@@ -1183,7 +1320,7 @@ print("Ready with", ECS.entity_count(world), "entities")
       }
 
       if (obj.type === 'particle') {
-        html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span>Particle System</span><span class="arr">▶</span></div>
+        html += `<div class="insp"><div class="insp-h open" onclick="togSec(this)"><span><svg class="icon icon-mr" width="10" height="10" viewBox="0 0 14 14"><use href="#ic-particles"/></svg>Particle System</span><svg class="arr" width="8" height="8" viewBox="0 0 14 14"><use href="#ic-arrow"/></svg></div>
           <div class="insp-b">
             <div class="pr"><span class="pl">Rate</span><input class="pi" type="number" value="50"></div>
             <div class="pr"><span class="pl">Life</span><input class="pi" type="number" value="2" step="0.1"></div>
@@ -1214,15 +1351,15 @@ print("Ready with", ECS.entity_count(world), "entities")
 
     // Assets
     const assets = [
-      { name: 'player.zpx', icon: '📦' }, { name: 'enemy.zpx', icon: '📦' },
-      { name: 'level1.zpx', icon: '📦' }, { name: 'grass.png', icon: '🖼' },
-      { name: 'player.png', icon: '🖼' }, { name: 'jump.wav', icon: '🔊' },
-      { name: 'music.mp3', icon: '🎵' }, { name: 'run.anim', icon: '🎬' },
-      { name: 'shader.glsl', icon: '✏️' }, { name: 'skybox.hdr', icon: '🖼' },
+      { name: 'player.zpx', icon: 'code' }, { name: 'enemy.zpx', icon: 'code' },
+      { name: 'level1.zpx', icon: 'code' }, { name: 'grass.png', icon: 'image' },
+      { name: 'player.png', icon: 'image' }, { name: 'jump.wav', icon: 'audio' },
+      { name: 'music.mp3', icon: 'audio' }, { name: 'run.anim', icon: 'video' },
+      { name: 'shader.glsl', icon: 'shader' }, { name: 'skybox.hdr', icon: 'image' },
     ];
     function renderAssets() {
       const g = document.getElementById('asset-grid'); g.innerHTML = '';
-      assets.forEach(a => { const d = document.createElement('div'); d.className = 'asset-item'; d.innerHTML = `<div class="aicon">${a.icon}</div><div class="aname">${a.name}</div>`; d.onclick = () => { document.querySelectorAll('.asset-item').forEach(x => x.classList.remove('selected')); d.classList.toggle('selected'); }; g.appendChild(d); });
+      assets.forEach(a => { const d = document.createElement('div'); d.className = 'asset-item'; d.innerHTML = `<div class="aicon">${svg(a.icon, 'icon-lg')}</div><div class="aname">${a.name}</div>`; d.onclick = () => { document.querySelectorAll('.asset-item').forEach(x => x.classList.remove('selected')); d.classList.toggle('selected'); }; g.appendChild(d); });
     }
     renderAssets();
 
